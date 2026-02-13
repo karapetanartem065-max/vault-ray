@@ -3,41 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VAULT RAY</title>
-    <link rel="stylesheet" href="style.css"> <!-- Подключаем стили отдельно -->
+    <title>SBER VAULT</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="app-header">
-        <div class="balance-label">TOTAL BALANCE</div>
-        <div class="balance-val" id="score">0</div>
-    </div>
-
-    <div id="main-screen">
-        <div class="diamond-container" id="tapper">
-            <!-- Тот самый Алмаз -->
-            <img src="https://img.icons8.com" alt="Diamond">
-        </div>
-        <div class="energy-section">
-            <div class="energy-info"><span>LIMIT</span><span id="energy-text">1000/1000</span></div>
-            <div class="energy-track"><div id="energy-fill"></div></div>
+    <div class="bank-header">
+        <div class="label">Счёт Private Banking</div>
+        <div class="balance-wrap">
+            <div id="score" class="balance-val">0</div>
+            <div class="symbol">₽</div>
         </div>
     </div>
 
-    <!-- Модалка магазина -->
-    <div id="shop-screen">
-        <div class="close-btn" onclick="toggleShop()">← BACK</div>
-        <h1>MARKET</h1>
-        <div class="shop-item">
-            <span>Multitap (Level 1)</span>
-            <button onclick="buyUpgrade()">BUY 1,000</button>
+    <div id="game-zone">
+        <div class="diamond-wrapper" id="tapper">
+            <img src="https://img.icons8.com" alt="Emerald">
+        </div>
+        <div class="energy-card">
+            <div class="energy-meta">
+                <span style="color: #8e8e93;">Доступный лимит</span>
+                <span id="e-text">1000/1000</span>
+            </div>
+            <div class="track"><div id="fill"></div></div>
         </div>
     </div>
 
-    <nav class="tab-bar">
-        <div class="tab-item active" onclick="toggleShop(false)">🏦 BANK</div>
-        <div class="tab-item" onclick="toggleShop(true)">🛒 MARKET</div>
+    <div id="market">
+        <div onclick="toggleMarket(false)" style="color: #21a038; font-weight: 600; margin-bottom: 30px;">← Назад</div>
+        <h2 style="font-weight: 700;">Платежи и услуги</h2>
+        <div class="item-card">
+            <div>
+                <div style="font-size: 17px; font-weight: 600;">Авто-инвест</div>
+                <div style="color: #8e8e93; font-size: 13px;">Увеличить силу тапа</div>
+            </div>
+            <button class="buy-action" onclick="upgrade()">1 000 ₽</button>
+        </div>
+    </div>
+
+    <nav class="sber-nav">
+        <div class="nav-btn active" onclick="toggleMarket(false)">
+            <span class="icon">💳</span>Главный
+        </div>
+        <div class="nav-btn" onclick="toggleMarket(true)">
+            <span class="icon">🛍️</span>Магазин
+        </div>
+        <div class="nav-btn">
+            <span class="icon">📊</span>Курсы
+        </div>
     </nav>
 
-    <script src="script.js"></script> <!-- Подключаем логику отдельно -->
+    <script src="script.js"></script>
 </body>
 </html>
