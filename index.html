@@ -2,136 +2,86 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>VAULT RAY</title>
-    <script src="https://telegram.org"></script>
-    <link href="https://fonts.googleapis.com" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>VAULT RAY - Game</title>
+    <script src="https://cdn.jsdelivr.net"></script>
     <style>
-        /* Блокируем всё лишнее на уровне системы */
-        * {
-            touch-action: none;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            background: #000;
-            color: #00f2ff;
-            font-family: 'Orbitron', sans-serif;
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-around;
-            overflow: hidden;
-        }
-
-        #score {
-            font-size: 5rem;
-            text-shadow: 0 0 30px #00f2ff;
-            pointer-events: none;
-        }
-
-        /* Кристалл теперь — это анимированный контейнер */
-        .crystal-container {
-            position: relative;
-            width: 300px;
-            height: 300px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .crystal-shape {
-            width: 200px;
-            height: 200px;
-            background: linear-gradient(135deg, #00f2ff 0%, #0044ff 100%);
-            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-            box-shadow: 0 0 60px rgba(0, 242, 255, 0.6);
-            animation: rotate 10s infinite linear;
-            pointer-events: none; /* Клик проходит СКВОЗЬ него на подложку */
-        }
-
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        /* Зона клика на весь экран */
-        #click-zone {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 10;
-        }
-
-        .tap-num {
-            position: absolute;
-            color: #fff;
-            font-size: 2.5rem;
-            font-weight: bold;
-            pointer-events: none;
-            z-index: 20;
-            animation: fly 0.5s ease-out forwards;
-        }
-
-        @keyframes fly {
-            0% { transform: translateY(0) scale(1); opacity: 1; }
-            100% { transform: translateY(-150px) scale(1.5); opacity: 0; }
-        }
+        body { margin: 0; background: #050505; overflow: hidden; font-family: sans-serif; }
+        #game-ui { position: absolute; top: 20px; width: 100%; text-align: center; color: #00f2ff; pointer-events: none; }
+        .balance { font-size: 42px; font-weight: bold; text-shadow: 0 0 15px #00f2ff; }
     </style>
 </head>
 <body>
 
-    <div id="score">0</div>
-
-    <div class="crystal-container">
-        <div class="crystal-shape"></div>
-    </div>
-
-    <div id="click-zone"></div>
-
-    <div style="width: 80%; height: 10px; background: #222; border-radius: 5px;">
-        <div style="width: 75%; height: 100%; background: #00f2ff; box-shadow: 0 0 15px #00f2ff;"></div>
+    <div id="game-ui">
+        <div class="balance" id="ray-balance">0 RAY</div>
     </div>
 
     <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-        tg.enableClosingConfirmation();
+    const config = {
+        type: Phaser.AUTO,
+        width: window.innerWidth,
+        height: window.innerHeight,
+        transparent: true,
+        parent: 'game-container',
+        scene: { preload: preload, create: create }
+    };
 
-        let count = 0;
-        const scoreDisp = document.getElementById('score');
-        const zone = document.getElementById('click-zone');
+    let score = 0;
+    const game = new Phaser.Game(config);
 
-        // Глобальная функция тапа
-        function handleTap(e) {
-            e.preventDefault();
+    function preload() {
+        // Замени ссылку на ту картинку кристалла, которая тебе понравилась выше
+        this.load.image('crystal', 'https://pngimg.com'); 
+    }
+
+    function create() {
+        const cx = this.cameras.main.centerX;
+        const cy = this.cameras.main.centerY;
+
+        // Создаем кристалл
+        const crystal = this.add.sprite(cx, cy, 'crystal').setInteractive();
+        crystal.setScale(0.6);
+
+        // Пульсация (дыхание кристалла)
+        this.tweens.add({
+            targets: crystal,
+            scale: 0.65,
+            duration: 2000,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
+
+        // Эффект при клике
+        crystal.on('pointerdown', (pointer) => {
+            score++;
+            document.getElementById('ray-balance').innerText = score + ' RAY';
+
+            // Рывок при клике
+            this.tweens.add({
+                targets: crystal,
+                scale: 0.55,
+                duration: 50,
+                yoyo: true
+            });
+
+            // Вылетающее число +1
+            const text = this.add.text(pointer.x, pointer.y, '+1', { 
+                fontSize: '32px', 
+                fill: '#00f2ff', 
+                fontWeight: 'bold' 
+            });
             
-            // Считаем каждый палец отдельно (мультитап)
-            const touches = e.changedTouches ? e.changedTouches : [e];
-            
-            for (let i = 0; i < touches.length; i++) {
-                count++;
-                scoreDisp.innerText = count;
-
-                // Вибрация — ТГ должен ее почувствовать
-                tg.HapticFeedback.impactOccurred('heavy');
-
-                // Создаем цифру
-                const t = touches[i];
-                const n = document.createElement('div');
-                n.className = 'tap-num';
-                n.innerText = '+1';
-                n.style.left = (t.clientX || t.pageX) + 'px';
-                n.style.top = (t.clientY || t.pageY) + 'px';
-                document.body.appendChild(n);
-                setTimeout(() => n.remove(), 500);
-            }
-        }
-        // Вешаем события на прозрачную зону поверх всего
-        zone.addEventListener('touchstart', handleTap, {passive: false});
-        zone.addEventListener('mousedown', handleTap);
+            this.tweens.add({
+                targets: text,
+                y: pointer.y - 150,
+                alpha: 0,
+                duration: 800,
+                onComplete: () => text.destroy()
+            });
+        });
+    }
     </script>
 </body>
 </html>
