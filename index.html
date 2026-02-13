@@ -1,102 +1,202 @@
+<div class="score-label">Current Balance</div>
+        <div class="score-container">
+            <span id="score">0</span>
+            <span style="color: var(--accent-color)">RAY</span>
+        </div>
+    </div>
+
+    <div class="crystal-wrapper">
+        <div class="crystal-glow"></div>
+        <div id="crystal"></div>
+    </div>
+
+    <div style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+        <div class="energy-bar">
+            <div class="energy-fill"></div>
+        </div>
+        <div class="energy-text">ENERGY: 750 / 1000</div>
+    </div>
+
+    <script>
+        const crystal = document.getElementById('crystal');
+        const scoreElement = document.getElementById('score');
+        let score = 0;
+
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.headerColor = '#0a0a0a';
+
+        crystal.addEventListener('touchstart', (e) => {
+            // Предотвращаем зум и стандартные действия
+            e.preventDefault();
+            
+            // Мультитап: обрабатываем каждое касание отдельно
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                handleTap(e.changedTouches[i].clientX, e.changedTouches[i].clientY);
+            }
+        });
+
+        function handleTap(x, y) {
+            score++;
+            scoreElement.innerText = score;
+
+            // Солидный виброотклик
+            tg.HapticFeedback.impactOccurred('medium');
+
+            // Анимация кристалла
+            crystal.style.transform = 'scale(0.92)';
+            setTimeout(() => { crystal.style.transform = 'scale(1)'; }, 50);
+
+            // Создаем вылетающую цифру (Фонтан)
+            const num = document.createElement('div');
+            num.className = 'tap-number';
+            num.innerText = '+1';
+            num.style.left = ${x - 20}px;
+            num.style.top = ${y - 50}px;
+            document.body.appendChild(num);
+
+            setTimeout(() => { num.remove(); }, 800);
+        }
+    </script>
+</body>
+</html>
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VAULT RAY</title>
+    <title>VAULT RAY | PREMIUM</title>
     <script src="https://telegram.org"></script>
+    <link href="https://fonts.googleapis.com" rel="stylesheet">
     <style>
+        :root {
+            --accent-color: #00f2ff;
+            --bg-dark: #0a0a0a;
+            --card-bg: #161616;
+        }
+
         body {
-            background-color: #050a10;
-            color: #ffffff;
-            font-family: 'Arial', sans-serif;
+            background: radial-gradient(circle at center, #1a1a1a 0%, var(--bg-dark) 100%);
+            color: white;
+            font-family: 'Inter', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
             height: 100vh;
             margin: 0;
+            padding: 40px 0;
             overflow: hidden;
-            touch-action: manipulation;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        #balance-container {
-            font-size: 32px;
-            font-weight: bold;
-            margin-bottom: 20px;
-            text-shadow: 0 0 15px #00d2ff;
+        .header {
+            text-align: center;
+            z-index: 10;
+        }
+
+        .score-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 0 20px rgba(0, 242, 255, 0.5);
+        }
+
+        .score-label {
+            font-size: 1rem;
+            color: var(--accent-color);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* Тот самый ядовито-голубой кристалл */
+        .crystal-wrapper {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         #crystal {
-            width: 200px;
-            height: 200px;
-            background: radial-gradient(circle, #00d2ff 0%, #3a7bd5 50%, #050a10 100%);
-            clip-path: polygon(50% 0%, 95% 25%, 100% 70%, 50% 100%, 0% 70%, 5% 25%);
-            box-shadow: 0 0 40px #00d2ff;
+            width: 280px;
+            height: 280px;
+            background: linear-gradient(135deg, #00f2ff 0%, #0066ff 100%);
+            clip-path: polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%);
+            box-shadow: 0 0 80px rgba(0, 242, 255, 0.4);
+            position: relative;
+            transition: transform 0.05s ease;
             cursor: pointer;
-            transition: transform 0.1s;
-            animation: breathe 3s infinite ease-in-out;
+            z-index: 5;
         }
 
-        @keyframes breathe {
-            0%, 100% { transform: scale(1); opacity: 0.8; }
-            50% { transform: scale(1.05); opacity: 1; }
+        #crystal::after {
+            content: '';
+            position: absolute;
+            top: 5%; left: 5%; right: 5%; bottom: 5%;
+            background: rgba(255, 255, 255, 0.1);
+            clip-path: inherit;
         }
 
+        .crystal-glow {
+            position: absolute;
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(0, 242, 255, 0.2) 0%, transparent 70%);
+            animation: pulse 3s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+        }
+
+        /* Эффект фонтана цифр */
         .tap-number {
             position: absolute;
-            color: #00d2ff;
-            font-size: 28px;
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
             font-weight: bold;
             pointer-events: none;
-            animation: float 0.7s ease-out forwards;
+            z-index: 100;
+            text-shadow: 0 0 10px var(--accent-color);
+            animation: flyUp 0.8s ease-out forwards;
         }
 
-        @keyframes float {
-            0% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(-100px); }
+        @keyframes flyUp {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-150px) scale(1.5); opacity: 0; }
+        }
+
+        /* Энергия */
+        .energy-bar {
+            width: 80%;
+            height: 12px;
+            background: #222;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #333;
+        }
+
+        .energy-fill {
+            width: 70%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-color), #0066ff);
+            box-shadow: 0 0 10px var(--accent-color);
+        }
+
+        .energy-text {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #888;
         }
     </style>
 </head>
 <body>
 
-    <div id="balance-container"><span id="balance">0</span> RAY</div>
-    <div id="crystal"></div>
-
-    <script>
-        let tg = window.Telegram.WebApp;
-        tg.expand(); // Разворачиваем на весь экран
-
-        let balance = 0;
-        const balanceDisplay = document.getElementById('balance');
-        const crystal = document.getElementById('crystal');
-
-        function handleEvent(e) {
-            e.preventDefault();
-            const touches = e.changedTouches ? e.changedTouches.length : 1;
-            balance += touches;
-            balanceDisplay.innerText = balance;
-
-            // Вибрация (Haptic Feedback)
-            if (tg.HapticFeedback) {
-                tg.HapticFeedback.impactOccurred('medium');
-            }
-
-            // Анимация цифр под пальцами
-            const touchData = e.changedTouches ? Array.from(e.changedTouches) : [e];
-            touchData.forEach(t => {
-                const num = document.createElement('div');
-                num.className = 'tap-number';
-                num.innerText = '+1';
-                num.style.left = (t.pageX || t.clientX) + 'px';
-                num.style.top = (t.pageY || t.clientY) + 'px';
-                document.body.appendChild(num);
-                setTimeout(() => num.remove(), 700);
-            });
-        }
-
-        crystal.addEventListener('touchstart', handleEvent);
-        crystal.addEventListener('mousedown', handleEvent);
-    </script>
-</body>
-</html>
+    <div class="header">
