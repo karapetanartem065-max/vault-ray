@@ -3,114 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VAULT RAY | PREMIUM</title>
+    <title>VAULT RAY</title>
     <script src="https://telegram.org"></script>
     <link href="https://fonts.googleapis.com" rel="stylesheet">
     <style>
-        :root { --accent: #00f2ff; --bg: #050505; }
-        
         body {
-            background: radial-gradient(circle at center, #111 0%, var(--bg) 100%);
-            color: white; font-family: 'Inter', sans-serif;
-            margin: 0; height: 100vh; overflow: hidden;
-            display: flex; flex-direction: column; align-items: center; justify-content: space-between;
-            user-select: none; -webkit-tap-highlight-color: transparent;
+            background-color: #050505;
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0; height: 100vh;
+            display: flex; flex-direction: column; align-items: center; justify-content: space-around;
+            overflow: hidden; touch-action: manipulation;
         }
 
-        .header { margin-top: 60px; text-align: center; }
-        .label { font-size: 10px; letter-spacing: 4px; color: #444; text-transform: uppercase; margin-bottom: 5px; }
-        .score { font-family: 'Orbitron', sans-serif; font-size: 3.8rem; font-weight: 700; text-shadow: 0 0 25px rgba(0, 242, 255, 0.4); }
+        .header { text-align: center; }
+        .score { font-family: 'Orbitron', sans-serif; font-size: 4rem; color: #00f2ff; text-shadow: 0 0 20px #00f2ff; }
 
-        /* Сексуальный кристалл */
-        .crystal-box { position: relative; perspective: 1000px; }
-        #crystal {
-            width: 260px; height: 260px;
-            background: linear-gradient(135deg, var(--accent) 0%, #0055ff 100%);
-            clip-path: polygon(50% 0%, 95% 25%, 95% 75%, 50% 100%, 5% 75%, 5% 25%);
-            box-shadow: inset 0 0 60px rgba(255,255,255,0.4);
-            filter: drop-shadow(0 0 40px rgba(0, 242, 255, 0.5));
+        /* Реальный SVG Кристалл */
+        #crystal-container {
+            width: 280px; height: 280px;
+            cursor: pointer;
             transition: transform 0.05s ease;
-            z-index: 5;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* Аура вокруг */
-        .aura {
-            position: absolute; width: 340px; height: 340px; top: -40px; left: -40px;
-            background: radial-gradient(circle, rgba(0, 242, 255, 0.1) 0%, transparent 70%);
-            animation: breathe 3s infinite ease-in-out;
-            pointer-events: none;
-        }
-        @keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.3; } 50% { transform: scale(1.15); opacity: 0.6; } }
+        #crystal-container:active { transform: scale(0.92); }
 
-        /* Энергия */
-        .footer { width: 100%; display: flex; flex-direction: column; align-items: center; margin-bottom: 50px; }
-        .bar-bg { width: 85%; height: 8px; background: #111; border-radius: 10px; border: 1px solid #222; overflow: hidden; }
-        .bar-fill { width: 75%; height: 100%; background: var(--accent); box-shadow: 0 0 15px var(--accent); }
-        .energy-txt { margin-top: 12px; font-family: 'Orbitron'; font-size: 12px; color: #666; letter-spacing: 1px; }
+        .footer { width: 85%; }
+        .energy-bar { width: 100%; height: 10px; background: #1a1a1a; border-radius: 10px; border: 1px solid #333; overflow: hidden; }
+        .fill { width: 75%; height: 100%; background: #00f2ff; box-shadow: 0 0 15px #00f2ff; }
 
-        /* Цифры вылетающие */
-        .tap-num {
-            position: absolute; color: white; font-family: 'Orbitron'; font-size: 28px; font-weight: bold;
-            pointer-events: none; text-shadow: 0 0 15px var(--accent);
-            animation: fly 0.7s ease-out forwards; z-index: 10;
+        /* Анимация цифр */
+        .tap-number {
+            position: absolute; color: white; font-family: 'Orbitron'; font-size: 32px;
+            pointer-events: none; animation: fly 0.6s forwards;
         }
-        @keyframes fly { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-130px) scale(1.3); opacity: 0; } }
+        @keyframes fly { to { transform: translateY(-150px); opacity: 0; } }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div class="label">Balance</div>
+        <div style="font-size: 12px; letter-spacing: 2px; color: #444;">BALANCE</div>
         <div class="score" id="score">0</div>
     </div>
 
-    <div class="crystal-box">
-        <div class="aura"></div>
-        <div id="crystal"></div>
+    <!-- Вставляем кристалл как SVG, чтобы он точно не был прямоугольником -->
+    <div id="crystal-container">
+        <svg viewBox="0 0 100 100" style="width: 100%; height: 100%; filter: drop-shadow(0 0 15px #00f2ff);">
+            <polygon points="50,5 95,25 95,75 50,95 5,75 5,25" fill="url(#grad)" stroke="#00f2ff" stroke-width="1""")/>>
+            <defs>
+                <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#00f2ff;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#0044ff;stop-opacity:1" />
+                </linearGradient>
+            </defs>
+        </svg>
     </div>
 
     <div class="footer">
-        <div class="bar-bg"><div class="bar-fill"></div></div>
-        <div class="energy-txt">ENERGY: 750 / 1000</div>
+        <div class="energy-bar"><div class="fill"></div></div>
+        <div style="text-align: center; margin-top: 10px; font-family: 'Orbitron'; color: #666; font-size: 12px;">ENERGY: 750/1000</div>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-        tg.enableClosingConfirmation();
 
-        const crystal = document.getElementById('crystal');
+        const container = document.getElementById('crystal-container');
         const scoreDisp = document.getElementById('score');
         let count = 0;
 
-        // Фикс для мобильного Telegram — мгновенный тап
-        crystal.addEventListener('touchstart', (e) => {
+        // Универсальный обработчик (и для мышки, и для тача)
+        const doTap = (e) => {
             e.preventDefault();
+            count++;
+            scoreDisp.innerText = count;
+
+            // Вибрация
+            tg.HapticFeedback.impactOccurred('medium');
+
+            // Вылет цифры
+            const x = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+            const y = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
             
-            // Обработка мультитапа
-            for (let i = 0; i < e.changedTouches.length; i++) {
-                const t = e.changedTouches[i];
-                count++;
-                scoreDisp.
-                      innerText = count;
-                spawnNum(t.clientX, t.clientY);
-            }
-
-            // Вибро и анимация сжатия
-            tg.HapticFeedback.impactOccurred('heavy');
-            crystal.style.transform = 'scale(0.92) rotate(2deg)';
-            setTimeout(() => crystal.style.transform = 'scale(1) rotate(0deg)', 60);
-        });
-
-        function spawnNum(x, y) {
             const n = document.createElement('div');
-            n.className = 'tap-num';
+            n.className = 'tap-number';
             n.innerText = '+1';
-            n.style.left = (x - 20) + 'px';
-            n.style.top = (y - 40) + 'px';
+            n.style.left = x + 'px';
+            n.style.top = y + 'px';
             document.body.appendChild(n);
-            setTimeout(() => n.remove(), 700);
-        }
+            setTimeout(() => n.remove(), 600);
+        };
+
+        container.addEventListener('touchstart', doTap);
+        container.addEventListener('mousedown', doTap);
     </script>
 </body>
-</html>  
+</html>
