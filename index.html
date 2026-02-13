@@ -9,97 +9,86 @@
             --bank-gold: #c5a059;
             --bank-black: #0a0b0c;
             --bank-gray: #1c1e21;
-            --accent-blue: #007aff; /* Классический банковский синий */
         }
+
+        * { touch-action: manipulation; box-sizing: border-box; }
 
         body, html { 
             margin: 0; padding: 0; width: 100%; height: 100%; 
             background: var(--bank-black); color: white; 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, system-ui, sans-serif;
             overflow: hidden; user-select: none; -webkit-user-select: none;
         }
 
-        /* Хедер в стиле банковского счета */
+        /* Хедер */
         .app-header {
-            padding: 40px 20px 20px;
-            background: linear-gradient(180deg, rgba(28,30,33,1) 0%, rgba(10,11,12,1) 100%);
+            padding: 50px 20px 30px;
+            background: linear-gradient(180deg, #1c1e21 0%, #0a0b0c 100%);
             border-bottom: 1px solid #222;
             text-align: center;
         }
-
-        .balance-label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
-        .balance-val { font-size: 42px; font-weight: 200; color: #fff; }
-        .balance-val span { color: var(--bank-gold); font-weight: 600; }
+        .balance-label { font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 2px; }
+        .balance-val { font-size: 48px; font-weight: 200; margin-top: 5px; }
 
         /* Игровая зона */
         #main-screen {
-            height: calc(100% - 250px);
+            height: calc(100% - 280px);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
 
-        /* Тот самый КЛАССИЧЕСКИЙ КРИСТАЛЛ */
-        .diamond {
-            width: 200px;
-            height: 200px;
+        /* Золотой Кристалл (SVG) */
+        .diamond-container {
+            width: 220px; height: 220px;
             position: relative;
-            cursor: pointer;
-            transition: transform 0.1s;
+            display: flex; align-items: center; justify-content: center;
             filter: drop-shadow(0 0 30px rgba(197, 160, 89, 0.2));
+            cursor: pointer;
         }
 
-        .diamond img {
-            width: 100%; height: 100%; object-fit: contain;
-        }
+        /* Энергия */
+        .energy-section { width: 85%; margin-top: 40px; }
+        .energy-info { display: flex; justify-content: space-between; font-size: 11px; color: #555; margin-bottom: 8px; }
+        .energy-track { width: 100%; height: 4px; background: #222; border-radius: 10px; overflow: hidden; }
+        #energy-fill { width: 100%; height: 100%; background: var(--bank-gold); transition: width 0.2s; }
 
-        /* Нижнее меню (Магазин, Друзья и т.д.) */
+        /* Таб-бар */
         .tab-bar {
-            position: fixed; bottom: 0; width: 100%; height: 80px;
-            background: var(--bank-gray);
-            border-top: 1px solid #333;
-            display: flex; justify-content: space-around; align-items: center;
-            padding-bottom: 15px;
+            position: fixed; bottom: 0; width: 100%; height: 85px;
+            background: var(--bank-gray); border-top: 1px solid #333;
+            display: flex; justify-content: space-around; padding-top: 10px;
         }
-
-        .tab-item { text-align: center; color: #666; font-size: 10px; text-decoration: none; }
+        .tab-item { text-align: center; color: #555; font-size: 10px; flex: 1; cursor: pointer; }
         .tab-item.active { color: var(--bank-gold); }
-        .tab-icon { font-size: 24px; margin-bottom: 4px; display: block; }
+        .tab-icon { font-size: 24px; margin-bottom: 5px; display: block; }
 
-        /* Энергия в виде тонкой полоски */
-        .energy-section { width: 80%; margin-top: 30px; }
-        .energy-info { display: flex; justify-content: space-between; font-size: 11px; color: #555; margin-bottom: 5px; }
-        .energy-track { width: 100%; height: 4px; background: #222; border-radius: 2px; }
-        #energy-fill { width: 100%; height: 100%; background: var(--bank-gold); border-radius: 2px; transition: width 0.3s; }
-
-        /* Всплывающие цифры */
-        .tap-msg {
-            position: absolute; color: white; font-weight: 300; font-size: 28px;
-            pointer-events: none; animation: fly 0.8s ease-out forwards;
-        }
-        @keyframes fly { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-120px); opacity: 0; } }
-
-        /* Модалка магазина */
+        /* Магазин */
         #shop-screen {
             position: fixed; top: 100%; left: 0; width: 100%; height: 100%;
-            background: var(--bank-black); z-index: 1000; transition: top 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            padding: 20px; box-sizing: border-box;
+            background: var(--bank-black); z-index: 100; transition: 0.4s ease;
+            padding: 30px 20px;
         }
         #shop-screen.open { top: 0; }
-        .close-shop { color: var(--bank-gold); font-size: 14px; margin-bottom: 20px; display: block; }
+
+        .tap-msg {
+            position: absolute; color: white; font-size: 32px; font-weight: 200;
+            pointer-events: none; animation: fly 0.7s ease-out forwards; z-index: 1000;
+        }
+        @keyframes fly { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-120px); opacity: 0; } }
     </style>
 </head>
 <body>
 
-    <!-- Экран Баланса -->
     <div class="app-header">
-        <div class="balance-label">Total Balance</div>
+        <div class="balance-label">TOTAL BALANCE</div>
         <div class="balance-val" id="score">0</div>
     </div>
 
-    <!-- Главная зона тапа -->
     <div id="main-screen">
-        <div class="diamond" id="tapper">
-            <!-- Используем классический визуальный кристалл -->
-            <img src="https://cdn-icons-png.flaticon.com" alt="Diamond">
+        <div class="diamond-container" id="tapper">
+            <svg viewBox="0 0 100 100" style="width: 100%; height: 100%;">
+                <path d="M50 5 L85 30 L85 70 L50 95 L15 70 L15 30 Z" fill="#c5a059" fill-opacity="0.8" stroke="#f3e5ab" stroke-width="0.5""")/>>
+                <path d="M50 5 L50 95 M15 30 L85 30 M15 70 L85 70 M50 5 L15 30 M50 5 L85 30 M50 95 L15 70 M50 95 L85 70" stroke="rgba(255,255,255,0.3)" stroke-width="0.3""")/>>
+            </svg>
         </div>
 
         <div class="energy-section">
@@ -111,75 +100,54 @@
         </div>
     </div>
 
-    <!-- Магазин (вылетает снизу) -->
     <div id="shop-screen">
-        <span class="close-shop" onclick="toggleShop()">← BACK TO BANKING</span>
-        <h2 style="font-weight: 200;">VAULT <span style="color: var(--bank-gold)">MARKET</span></h2>
-        <div style="background: #1a1b1c; padding: 20px; border-radius: 12px; border: 1px solid #333;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <div style="font-size: 16px;">Auto-Miner v.1</div>
-                    <div style="color: #666; font-size: 12px;">+50 RAY / hour</div>
-                </div>
-                <button style="background: var(--bank-gold); border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold;">1,000</button>
-            </div>
-        </div>
+        <div onclick="toggleShop()" style="color: var(--bank-gold); margin-bottom: 30px;">← BACK TO VAULT</div>
+        <h1 style="font-weight: 200;">MARKET</h1>
+        <p style="color: #666;">Upgrades coming soon...</p>
     </div>
 
-    <!-- Таб-бар -->
     <nav class="tab-bar">
-        <div class="tab-item active">
-            <span class="tab-icon">🏦</span>
-            BANK
-        </div>
-        <div class="tab-item" onclick="toggleShop()">
-            <span class="tab-icon">🛒</span>
-            MARKET
-        </div>
-        <div class="tab-item">
-            <span class="tab-icon">👥</span>
-            PARTNERS
-        </div>
+        <div class="tab-item active"><span class="tab-icon">🏦</span>BANK</div>
+        <div class="tab-item" onclick="toggleShop()"><span class="tab-icon">🛒</span>MARKET</div>
+        <div class="tab-item"><span class="tab-icon">👥</span>PARTNERS</div>
     </nav>
 
     <script>
-        let score = parseInt(localStorage.getItem('ray_v2_score')) || 0;
+        let score = parseInt(localStorage.getItem('ray_v3_score')) || 0;
         let energy = 1000;
         const maxEnergy = 1000;
 
         const scoreEl = document.getElementById('score');
-        const tapper = document.getElementById('tapper');
         const energyFill = document.getElementById('energy-fill');
         const energyText = document.getElementById('energy-text');
+        const tapper = document.getElementById('tapper');
 
         scoreEl.innerText = score.toLocaleString();
 
         tapper.addEventListener('pointerdown', (e) => {
             if (energy <= 0) return;
 
-            // Логика
             score++;
             energy--;
             
-            // UI
             scoreEl.innerText = score.toLocaleString();
             energyText.innerText = ${energy}/${maxEnergy};
             energyFill.style.width = (energy / maxEnergy * 100) + '%';
             
-            // Анимация тапа
-            tapper.style.transform = 'scale(0.92)';
+            // Эффект нажатия
+            tapper.style.transform = 'scale(0.95)';
             setTimeout(() => tapper.style.transform = 'scale(1)', 100);
 
-            // Числа
+            // Цифра +1
             const msg = document.createElement('div');
             msg.className = 'tap-msg';
             msg.innerText = '+1';
             msg.style.left = e.clientX + 'px';
-            msg.style.top = (e.clientY - 50) + 'px';
+            msg.style.top = e.clientY + 'px';
             document.body.appendChild(msg);
-            setTimeout(() => msg.remove(), 800);
+            setTimeout(() => msg.remove(), 700);
 
-            localStorage.setItem('ray_v2_score', score);
+            localStorage.setItem('ray_v3_score', score);
             if(navigator.vibrate) navigator.vibrate(10);
         });
 
@@ -187,14 +155,13 @@
             document.getElementById('shop-screen').classList.toggle('open');
         }
 
-        // Реген энергии
         setInterval(() => {
             if (energy < maxEnergy) {
-                energy += 2;
+                energy += 1;
                 energyText.innerText = ${energy}/${maxEnergy};
                 energyFill.style.width = (energy / maxEnergy * 100) + '%';
             }
-        }, 1000);
+        }, 1500);
     </script>
 </body>
 </html>
