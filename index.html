@@ -3,179 +3,196 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VAULT RAY PREMIUM</title>
+    <title>VAULT RAY | PRIVATE BANKING</title>
     <style>
         :root {
-            --neon-blue: #00d9ff;
-            --dark-bg: #0d1117;
-            --anthracite: #1a1f26;
+            --bank-gold: #c5a059;
+            --bank-black: #0a0b0c;
+            --bank-gray: #1c1e21;
+            --accent-blue: #007aff; /* Классический банковский синий */
         }
 
         body, html { 
             margin: 0; padding: 0; width: 100%; height: 100%; 
-            background: var(--dark-bg); color: white; 
-            display: flex; flex-direction: column; align-items: center; 
-            font-family: 'Segoe UI', Roboto, sans-serif; overflow: hidden;
-            user-select: none; -webkit-user-select: none;
+            background: var(--bank-black); color: white; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden; user-select: none; -webkit-user-select: none;
         }
 
-        /* Хедер с балансом */
-        .header {
-            margin-top: 50px;
+        /* Хедер в стиле банковского счета */
+        .app-header {
+            padding: 40px 20px 20px;
+            background: linear-gradient(180deg, rgba(28,30,33,1) 0%, rgba(10,11,12,1) 100%);
+            border-bottom: 1px solid #222;
             text-align: center;
-            z-index: 10;
         }
 
-        .score { 
-            font-size: 60px; 
-            font-weight: 900; 
-            color: var(--neon-blue);
-            text-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
+        .balance-label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
+        .balance-val { font-size: 42px; font-weight: 200; color: #fff; }
+        .balance-val span { color: var(--bank-gold); font-weight: 600; }
+
+        /* Игровая зона */
+        #main-screen {
+            height: calc(100% - 250px);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
 
-        /* Контейнер кристалла */
-        #game-area {
-            flex-grow: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
+        /* Тот самый КЛАССИЧЕСКИЙ КРИСТАЛЛ */
+        .diamond {
+            width: 200px;
+            height: 200px;
             position: relative;
-            touch-action: none;
+            cursor: pointer;
+            transition: transform 0.1s;
+            filter: drop-shadow(0 0 30px rgba(197, 160, 89, 0.2));
         }
 
-        .crystal { 
-            width: 180px; height: 260px; 
-            background: var(--neon-blue); 
-            clip-path: polygon(50% 0%, 100% 20%, 100% 80%, 50% 100%, 0% 80%, 0% 20%);
-            box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
-            filter: drop-shadow(0 0 40px var(--neon-blue));
-            transition: transform 0.05s;
-            animation: pulse 2s infinite ease-in-out;
+        .diamond img {
+            width: 100%; height: 100%; object-fit: contain;
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 0.8; }
-            50% { transform: scale(1.05); opacity: 1; }
-            100% { transform: scale(1); opacity: 0.8; }
+        /* Нижнее меню (Магазин, Друзья и т.д.) */
+        .tab-bar {
+            position: fixed; bottom: 0; width: 100%; height: 80px;
+            background: var(--bank-gray);
+            border-top: 1px solid #333;
+            display: flex; justify-content: space-around; align-items: center;
+            padding-bottom: 15px;
         }
 
-        /* Вылетающие цифры */
-        .particle {
-            position: absolute;
-            color: var(--neon-blue);
-            font-weight: bold;
-            font-size: 24px;
-            pointer-events: none;
-            animation: floatUp 0.6s ease-out forwards;
-            z-index: 100;
-        }
+        .tab-item { text-align: center; color: #666; font-size: 10px; text-decoration: none; }
+        .tab-item.active { color: var(--bank-gold); }
+        .tab-icon { font-size: 24px; margin-bottom: 4px; display: block; }
 
-        @keyframes floatUp {
-            0% { transform: translateY(0); opacity: 1; }
-            100% { transform: translateY(-100px); opacity: 0; }
-        }
+        /* Энергия в виде тонкой полоски */
+        .energy-section { width: 80%; margin-top: 30px; }
+        .energy-info { display: flex; justify-content: space-between; font-size: 11px; color: #555; margin-bottom: 5px; }
+        .energy-track { width: 100%; height: 4px; background: #222; border-radius: 2px; }
+        #energy-fill { width: 100%; height: 100%; background: var(--bank-gold); border-radius: 2px; transition: width 0.3s; }
 
-        /* Полоска энергии */
-        .energy-container {
-            width: 80%;
-            height: 12px;
-            background: #222;
-            border-radius: 10px;
-            margin-bottom: 40px;
-            overflow: hidden;
-            border: 1px solid #333;
+        /* Всплывающие цифры */
+        .tap-msg {
+            position: absolute; color: white; font-weight: 300; font-size: 28px;
+            pointer-events: none; animation: fly 0.8s ease-out forwards;
         }
+        @keyframes fly { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-120px); opacity: 0; } }
 
-        #energy-bar {
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, var(--neon-blue), #0055ff);
-            transition: width 0.2s;
+        /* Модалка магазина */
+        #shop-screen {
+            position: fixed; top: 100%; left: 0; width: 100%; height: 100%;
+            background: var(--bank-black); z-index: 1000; transition: top 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 20px; box-sizing: border-box;
         }
-
-        .energy-text {
-            font-size: 14px;
-            margin-bottom: 10px;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
+        #shop-screen.open { top: 0; }
+        .close-shop { color: var(--bank-gold); font-size: 14px; margin-bottom: 20px; display: block; }
     </style>
 </head>
-<body onpointerdown="handleTap(event)">
+<body>
 
-    <div class="header">
-        <div id="score" class="score">0</div>
-        <div style="color: #444; letter-spacing: 4px;">VAULT RAY</div>
+    <!-- Экран Баланса -->
+    <div class="app-header">
+        <div class="balance-label">Total Balance</div>
+        <div class="balance-val" id="score">0</div>
     </div>
 
-    <div id="game-area">
-        <div id="crystal" class="crystal"></div>
+    <!-- Главная зона тапа -->
+    <div id="main-screen">
+        <div class="diamond" id="tapper">
+            <!-- Используем классический визуальный кристалл -->
+            <img src="https://cdn-icons-png.flaticon.com" alt="Diamond">
+        </div>
+
+        <div class="energy-section">
+            <div class="energy-info">
+                <span>LIMIT</span>
+                <span id="energy-text">1000/1000</span>
+            </div>
+            <div class="energy-track"><div id="energy-fill"></div></div>
+        </div>
     </div>
 
-    <div class="energy-text">Energy: <span id="energy-val">1000</span>/1000</div>
-    <div class="energy-container">
-        <div id="energy-bar"></div>
+    <!-- Магазин (вылетает снизу) -->
+    <div id="shop-screen">
+        <span class="close-shop" onclick="toggleShop()">← BACK TO BANKING</span>
+        <h2 style="font-weight: 200;">VAULT <span style="color: var(--bank-gold)">MARKET</span></h2>
+        <div style="background: #1a1b1c; padding: 20px; border-radius: 12px; border: 1px solid #333;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="font-size: 16px;">Auto-Miner v.1</div>
+                    <div style="color: #666; font-size: 12px;">+50 RAY / hour</div>
+                </div>
+                <button style="background: var(--bank-gold); border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold;">1,000</button>
+            </div>
+        </div>
     </div>
+
+    <!-- Таб-бар -->
+    <nav class="tab-bar">
+        <div class="tab-item active">
+            <span class="tab-icon">🏦</span>
+            BANK
+        </div>
+        <div class="tab-item" onclick="toggleShop()">
+            <span class="tab-icon">🛒</span>
+            MARKET
+        </div>
+        <div class="tab-item">
+            <span class="tab-icon">👥</span>
+            PARTNERS
+        </div>
+    </nav>
 
     <script>
-        let score = parseInt(localStorage.getItem('ray_score')) || 0;
-        let energy = parseInt(localStorage.getItem('ray_energy')) || 1000;
+        let score = parseInt(localStorage.getItem('ray_v2_score')) || 0;
+        let energy = 1000;
         const maxEnergy = 1000;
 
         const scoreEl = document.getElementById('score');
-        const energyEl = document.getElementById('energy-val');
-        const energyBar = document.getElementById('energy-bar');
-        const crystal = document.getElementById('crystal');
+        const tapper = document.getElementById('tapper');
+        const energyFill = document.getElementById('energy-fill');
+        const energyText = document.getElementById('energy-text');
 
-        // Инициализация
-        scoreEl.innerText = score;
-        updateEnergyUI();
-        function handleTap(e) {
+        scoreEl.innerText = score.toLocaleString();
+
+        tapper.addEventListener('pointerdown', (e) => {
             if (energy <= 0) return;
 
-            // Логика клика
+            // Логика
             score++;
             energy--;
             
-            // Сохранение
-            scoreEl.innerText = score;
-            localStorage.setItem('ray_score', score);
-            localStorage.setItem('ray_energy', energy);
+            // UI
+            scoreEl.innerText = score.toLocaleString();
+            energyText.innerText = ${energy}/${maxEnergy};
+            energyFill.style.width = (energy / maxEnergy * 100) + '%';
+            
+            // Анимация тапа
+            tapper.style.transform = 'scale(0.92)';
+            setTimeout(() => tapper.style.transform = 'scale(1)', 100);
 
-            updateEnergyUI();
-            spawnParticle(e.clientX, e.clientY);
+            // Числа
+            const msg = document.createElement('div');
+            msg.className = 'tap-msg';
+            msg.innerText = '+1';
+            msg.style.left = e.clientX + 'px';
+            msg.style.top = (e.clientY - 50) + 'px';
+            document.body.appendChild(msg);
+            setTimeout(() => msg.remove(), 800);
 
-            // Визуал кристалла при тапе
-            crystal.style.transform = 'scale(0.95)';
-            setTimeout(() => { crystal.style.transform = 'scale(1)'; }, 50);
+            localStorage.setItem('ray_v2_score', score);
+            if(navigator.vibrate) navigator.vibrate(10);
+        });
 
-            if (navigator.vibrate) navigator.vibrate(5);
+        function toggleShop() {
+            document.getElementById('shop-screen').classList.toggle('open');
         }
 
-        function spawnParticle(x, y) {
-            const p = document.createElement('div');
-            p.className = 'particle';
-            p.innerText = '+1';
-            p.style.left = x + 'px';
-            p.style.top = y + 'px';
-            document.body.appendChild(p);
-            setTimeout(() => p.remove(), 600);
-        }
-
-        function updateEnergyUI() {
-            energyEl.innerText = energy;
-            const percent = (energy / maxEnergy) * 100;
-            energyBar.style.width = percent + '%';
-        }
-
-        // Регенерация энергии (1 единица в секунду)
+        // Реген энергии
         setInterval(() => {
             if (energy < maxEnergy) {
-                energy++;
-                updateEnergyUI();
-                localStorage.setItem('ray_energy', energy);
+                energy += 2;
+                energyText.innerText = ${energy}/${maxEnergy};
+                energyFill.style.width = (energy / maxEnergy * 100) + '%';
             }
         }, 1000);
     </script>
