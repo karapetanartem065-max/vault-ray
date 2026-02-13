@@ -2,119 +2,62 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>VAULT RAY FORCE</title>
-    <script src="https://telegram.org"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VAULT RAY RESET</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #090a0a; }
-        canvas { display: block; touch-action: none; }
-        #ui { position: absolute; top: 60px; width: 100%; text-align: center; pointer-events: none; font-family: sans-serif; }
-        .balance { font-size: 52px; font-weight: 900; color: #00ff88; text-shadow: 0 0 20px rgba(0,255,136,0.5); }
-        .footer { position: absolute; bottom: 30px; width: 100%; display: flex; justify-content: space-around; color: #555; font-size: 12px; font-weight: bold; font-family: sans-serif; }
+        /* Максимально примитивный стиль, чтобы ничего не лагало */
+        body, html { 
+            margin: 0; padding: 0; width: 100%; height: 100%; 
+            background: #090a0a; color: #00ff88; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            font-family: sans-serif; overflow: hidden;
+        }
+        /* Огромная зона клика, которая перекрывает ВООБЩЕ ВСЁ */
+        #clicker {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: transparent; z-index: 9999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .score { font-size: 80px; font-weight: 900; pointer-events: none; }
+        .crystal { 
+            width: 150px; height: 200px; background: #00ff88; 
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            filter: drop-shadow(0 0 30px #00ff88); pointer-events: none;
+        }
     </style>
 </head>
-<body>
+<body onpointerdown="forceTap(event)">
 
-<div id="ui">
-    <div style="font-size: 12px; color: #666; letter-spacing: 2px;">ВАШ БАЛАНС</div>
-    <div id="score" class="balance">0 RAY</div>
-</div>
+    <div id="clicker">
+        <div id="score" class="score">0</div>
+        <div class="crystal"></div>
+        <div style="margin-top: 20px; color: #444; font-weight: bold;">TAP ANYWHERE</div>
+    </div>
 
-<canvas id="game"></canvas>
+    <script>
+        // Самая дубовая логика сохранения
+        let val = parseInt(localStorage.getItem('v_final')) || 0;
+        const s = document.getElementById('score');
+        s.innerText = val;
 
-<div class="footer">
-    <div style="color: #00ff88">ДОБЫЧА</div>
-    <div>МАГАЗИН</div>
-    <div>ЗАДАНИЯ</div>
-</div>
+        // Функция, которая сработает ДАЖЕ если всё остальное заблокировано
+        function forceTap(e) {
+            val++;
+            s.innerText = val;
+            localStorage.setItem('v_final', val);
+            
+            // Пробуем вибро, если система позволит
+            if (window.navigator && window.navigator.vibrate) {
+                window.navigator.vibrate(10);
+            }
 
-<script>
-    const tg = window.Telegram.WebApp;
-    tg.expand();
-    
-    const canvas = document.getElementById('game');
-    const ctx = canvas.getContext('2d');
-    const scoreEl = document.getElementById('score');
+            // Минимальный визуал
+            document.body.style.backgroundColor = '#111';
+            setTimeout(() => { document.body.style.backgroundColor = '#090a0a'; }, 50);
+        }
 
-    let score = parseInt(localStorage.getItem('ray_canvas')) || 0;
-    scoreEl.innerText = score + ' RAY';
-
-    let crystalScale = 1;
-    let particles = [];
-
-    function resize() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    }
-    window.addEventListener('resize', resize);
-    resize();
-
-    // Отрисовка кристалла на Canvas
-    function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const cx = canvas.width / 2;
-        const cy = canvas.height / 2;
-
-        ctx.save();
-        ctx.translate(cx, cy);
-        ctx.scale(crystalScale, crystalScale);
-        
-        // Рисуем изумрудный кристалл
-        ctx.beginPath();
-        ctx.moveTo(0, -100);
-        ctx.lineTo(80, -40);
-        ctx.lineTo(80, 40);
-        ctx.lineTo(0, 100);
-        ctx.lineTo(-80, 40);
-        ctx.lineTo(-80, -40);
-        ctx.closePath();
-        
-        ctx.fillStyle = '#00ff88';
-        ctx.shadowBlur = 30;
-        ctx.shadowColor = '#00ff88';
-        ctx.fill();
-        ctx.strokeStyle = '#fff';
-        ctx.stroke();
-        ctx.restore();
-
-        // Рисуем вылетающие цифры
-        particles.forEach((p, i) => {
-            p.y -= 3;
-            p.alpha -= 0.02;
-            ctx.fillStyle = rgba(0, 255, 136, ${p.alpha});
-            ctx.font = 'bold 40px sans-serif';
-            ctx.fillText('+1', p.x, p.y);
-            if(p.alpha <= 0) particles.splice(i, 1);
-        });
-
-        requestAnimationFrame(draw);
-    }
-
-    // ХИТРЫЙ ОБРАБОТЧИК КЛИКА (на уровне Canvas)
-    function handleAction(e) {
-        e.preventDefault();
-        
-        score++;
-        scoreEl.innerText = score + ' RAY';
-        localStorage.setItem('ray_canvas', score);
-
-        if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-
-        // Анимация сжатия
-        crystalScale = 0.9;
-        setTimeout(() => crystalScale = 1, 50);
-
-        // Добавляем частицу в место клика
-        const t = e.touches ? e.touches[0] : e;
-        particles.push({ x: t.clientX, y: t.clientY, alpha: 1 });
-    }
-
-    // Вешаем события на сам объект Window, чтобы не промахнуться
-    window.addEventListener('touchstart', handleAction, { passive: false });
-    window.addEventListener('mousedown', handleAction);
-
-    draw();
-</script>
-
+        // Если это iPhone, иногда нужно «пнуть» аудио-контекст или тач
+        document.addEventListener('touchstart', function() {}, false);
+    </script>
 </body>
 </html>
