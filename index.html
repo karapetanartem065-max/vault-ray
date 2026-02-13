@@ -1,113 +1,84 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VAULT RAY</title>
-    <style>
-        :root { --sber: #21a038; --bg: #000; --card: #151517; --gray: #8e8e93; }
-        * { touch-action: manipulation; -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
-        body { margin: 0; background: var(--bg); color: #fff; font-family: -apple-system, sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
-        
-        /* HEADER */
-        .header { padding: 60px 20px 25px; background: var(--card); border-radius: 0 0 24px 24px; border-bottom: 0.5px solid #333; }
-        .user-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .vip-tag { font-size: 10px; color: var(--sber); border: 1px solid var(--sber); padding: 2px 6px; border-radius: 4px; font-weight: bold; }
-        .balance { font-size: 42px; font-weight: 700; margin-top: 5px; letter-spacing: -1px; }
-        .green { color: var(--sber); }
-
-        /* MAIN CLICKER */
-        .main { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .click-circle { width: 220px; height: 220px; background: radial-gradient(circle, var(--sber) 0%, #1a5c24 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 50px rgba(33, 160, 56, 0.3); border: 8px solid rgba(255,255,255,0.05); transition: 0.05s; cursor: pointer; }
-        
-        /* NAVIGATION */
-        .nav { position: fixed; bottom: 0; width: 100%; height: 85px; background: rgba(20,20,22,0.98); display: flex; border-top: 0.5px solid #333; backdrop-filter: blur(15px); }
-        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; color: var(--gray); text-transform: uppercase; letter-spacing: 0.5px; }
-        .nav-item.active { color: var(--sber); }
-        .nav-icon { font-size: 20px; margin-bottom: 4px; }
-
-        /* SHEETS (Windows) */
-        .sheet { position: fixed; top: 100%; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 1000; transition: 0.4s cubic-bezier(0, 0.5, 0.5, 1); padding-top: 50px; }
-        .sheet.open { top: 0; }
-        .sheet-content { padding: 20px; }
-        .card-item { background: var(--card); padding: 15px; border-radius: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .btn-pay { background: #fff; color: #000; border: none; padding: 10px 15px; border-radius: 10px; font-weight: bold; }
-        
-        /* COUNTRY LEADERBOARD */
-        .flag { width: 24px; margin-right: 10px; }
-    </style>
-</head>
-<body>
-
-    <div class="header">
-        <div class="user-row">
-            <span class="label" id="txt-status" onclick="handleAdmin()">VAULT RAY SYSTEM</span>
-            <span class="vip-tag">VIP</span>
-        </div>
-        <div class="balance"><span id="score">0</span> <span class="green">VR</span></div>
+<div id="tapper" class="click-circle"><div class="core-text">VAULT</div></div>
     </div>
 
-    <div class="main" id="view-main">
-        <div id="tapper" class="click-circle"><div style="font-weight:900; font-size:28px;">RAY</div></div>
-        <div style="width: 90%; margin-top: 40px;">
-            <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--gray); margin-bottom:8px;">
-                <span id="txt-energy">Энергия</span><span id="e-text">1000/1000</span>
+    <div class="energy-box">
+        <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:600;">
+            <span id="txt-nrg-label">ENERGY</span>
+            <span id="e-text">1000/1000</span>
+        </div>
+        <div class="bar-container"><div id="fill"></div></div>
+    </div>
+
+    <!-- МАРКЕТ -->
+    <div id="screen-market" class="screen">
+        <div class="screen-header">
+            <div class="back-btn" onclick="closeScreens()">←</div>
+            <h2 id="txt-m-title">Market Store</h2>
+        </div>
+        <div style="padding:20px;">
+            <div class="rank-item">
+                <div><b>Multi-Tap</b><br><small>+1 per click</small></div>
+                <button style="background:var(--sber); border:none; color:#fff; padding:10px 15px; border-radius:10px;" onclick="buy('click', 1000, 1)">1,000</button>
             </div>
-            <div style="height:6px; background:#333; border-radius:3px; overflow:hidden;">
-                <div id="fill" style="height:100%; background:var(--sber); width:100%;"></div>
+            <div class="rank-item" style="border-color: #f7931a;">
+                <div><b>Crypto-Boost</b><br><small>Buy via TON</small></div>
+                <button style="background:#fff; color:#000; border:none; padding:10px 15px; border-radius:10px; font-weight:bold;" onclick="window.location.href='https://t.me'">PAY</button>
             </div>
         </div>
     </div>
 
-    <!-- MARKET -->
-    <div id="view-market" class="sheet">
-        <div class="sheet-content">
-            <h2 id="txt-market-title">Маркет</h2>
-            <div class="card-item">
-                <div><b id="txt-up-click">Мульти-тап</b><br><small>+1 VR</small></div>
-                <button class="btn-pay" onclick="buy('click', 1000, 1)">1,000</button>
-            </div>
-            <div class="card-item" style="border: 1px solid var(--sber);">
-                <div><b id="txt-buy-stars">Купить VR</b><br><small>через Telegram</small></div>
-                <button class="btn-pay" style="background:var(--sber); color:#fff;" onclick="startPayment()">BUY</button>
-            </div>
+    <!-- РЕЙТИНГ -->
+    <div id="screen-rating" class="screen">
+        <div class="screen-header">
+            <div class="back-btn" onclick="closeScreens()">←</div>
+            <h2 id="txt-r-title">Global Leaders</h2>
         </div>
-    </div>
-
-    <!-- RATING -->
-    <div id="view-rating" class="sheet">
-        <div class="sheet-content">
-            <h2 id="txt-rating-title">Мировой Рейтинг</h2>
-            <div class="card-item"><div>🇷🇺 Russia</div><b>1.2B RAY</b></div>
-            <div class="card-item"><div>🇺🇸 USA</div><b>890M RAY</b></div>
-            <div class="card-item"><div>🇦🇪 UAE</div><b>540M RAY</b></div>
+        <div class="rank-list" id="rank-content">
+            <!-- Генерация списка стран -->
         </div>
     </div>
 
     <nav class="nav">
-        <div class="nav-item active" onclick="showView('main')"><span class="nav-icon">🏦</span><span id="nav-main">Главный</span></div>
-        <div class="nav-item" onclick="showView('market')"><span class="nav-icon">🛍️</span><span id="nav-market">Маркет</span></div>
-        <div class="nav-item" onclick="showView('rating')"><span class="nav-icon">🏆</span><span id="nav-rating">Рейтинг</span></div>
+        <div class="nav-item active" onclick="closeScreens()">🏠 <span id="n-1">Home</span></div>
+        <div class="nav-item" onclick="openScreen('market')">🛍️ <span id="n-2">Shop</span></div>
+        <div class="nav-item" onclick="openScreen('rating')">🏆 <span id="n-3">Rank</span></div>
     </nav>
 
     <script>
-        const lang = navigator.language.startsWith('ru') ? 'ru' : 'en';
-        const strings = {
-            ru: { main: "Главный", market: "Маркет", rating: "Рейтинг", energy: "Энергия", upClick: "Мульти-тап", buyVR: "Купить VR" },
-            en: { main: "Home", market: "Market", rating: "Rating", energy: "Energy", upClick: "Multi-tap", buyVR: "Buy VR" }
+        // ЛОГИКА ЯЗЫКА
+        const isRu = navigator.language.startsWith('ru');
+        const lang = {
+            ru: { m: "Маркет Хранилища", r: "Мировой Рейтинг", n1: "Главный", n2: "Маркет", n3: "Рейтинг", nrg: "ЭНЕРГИЯ" },
+            en: { m: "Vault Market", r: "World Rating", n1: "Home", n2: "Market", n3: "Rank", nrg: "ENERGY" }
         };
+        const s = isRu ? lang.ru : lang.en;
 
         let bal = parseInt(localStorage.getItem('vr_bal')) || 0;
         let pwr = parseInt(localStorage.getItem('vr_pwr')) || 1;
         let nrg = 1000;
+        let lastTap = 0;
 
-        function initLang() {
-            document.getElementById('nav-main').innerText = strings[lang].main;
-            document.getElementById('nav-market').innerText = strings[lang].market;
-            document.getElementById('nav-rating').innerText = strings[lang].rating;
-            document.getElementById('txt-energy').innerText = strings[lang].energy;
-            document.getElementById('txt-up-click').innerText = strings[lang].upClick;
-            document.getElementById('txt-buy-stars').innerText = strings[lang].buyVR;
+        function init() {
+            document.getElementById('txt-m-title').innerText = s.m;
+            document.getElementById('txt-r-title').innerText = s.r;
+            document.getElementById('n-1').innerText = s.n1;
+            document.getElementById('n-2').innerText = s.n2;
+            document.getElementById('n-3').innerText = s.n3;
+            document.getElementById('txt-nrg-label').innerText = s.nrg;
+            
+            // Заполняем рейтинг (10 стран)
+            const countries = [
+                {n: "Russia", f: "🇷🇺", v: "2.4B"}, {n: "USA", f: "🇺🇸", v: "1.9B"}, 
+                {n: "UAE", f: "🇦🇪", v: "1.1B"}, {n: "China", f: "🇨🇳", v: "980M"},
+                {n: "Germany", f: "🇩🇪", v: "500M"}, {n: "UK", f: "🇬🇧", v: "420M"}
+            ];
+            document.getElementById('rank-content').innerHTML = countries.map((c, i) => `
+                <div class="rank-item">
+                    <span>${i+1}. ${c.f} ${c.n}</span>
+                    <b style="color:var(--sber)">${c.v}</b>
+                </div>
+            `).join('');
+            sync();
         }
 
         function sync() {
@@ -117,35 +88,47 @@
             localStorage.setItem('vr_bal', bal);
         }
 
-        function showView(view) {
-            document.querySelectorAll('.sheet').forEach(s => s.classList.remove('open'));
-            if(view !== 'main') document.getElementById('view-' + view).classList.add('open');
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            event.currentTarget.classList.add('active');
-        }
-
-        const tapper = document.getElementById('tapper');
+        const tapper = document.
+        getElementById('tapper');
         tapper.addEventListener('touchstart', (e) => {
             e.preventDefault();
+            let now = Date.now();
+            if (now - lastTap < 45) return; // Усиленный анти-клик
             if (nrg >= pwr) {
                 bal += pwr; nrg -= pwr;
+                lastTap = now;
                 if(navigator.vibrate) navigator.vibrate(10);
+                tapper.style.transform = "scale(0.94)";
+                setTimeout(() => tapper.style.transform = "scale(1)", 50);
                 sync();
             }
         });
 
-        function startPayment() {
-            // Тут вызываем твоего бота для оплаты
-            alert(lang === 'ru' ? "Переход к оплате в боте..." : "Redirecting to payment bot...");
-            window.location.href = "https://t.me"; // ССЫЛКА НА ТВОЕГО БОТА
+        function openScreen(id) {
+            document.getElementById('screen-'+id).classList.add('active');
+        }
+
+        function closeScreens() {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         }
 
         function buy(t, p, b) {
-            if(bal >= p) { bal -= p; if(t==='click') pwr += b; sync(); }
+            if(bal >= p) { bal -= p; pwr += b; sync(); alert("Success!"); }
         }
 
-        setInterval(() => { if(nrg < 1000) nrg += 2; sync(); }, 1000);
-        initLang(); sync();
+        // Скрытая Админка (5 кликов по VAULT RAY SYSTEM, код 777)
+        let aCl = 0;
+        function handleAdmin() {
+            aCl++; if(aCl >= 5) {
+                if(prompt("Admin Access:") === "777") {
+                    bal = parseInt(prompt("New Balance:", bal)) || bal; sync();
+                }
+                aCl = 0;
+            }
+        }
+
+        setInterval(() => { if(nrg < 1000) nrg += 3; sync(); }, 1000);
+        init();
     </script>
 </body>
-</html>
+</html>    
