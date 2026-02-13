@@ -1,0 +1,22 @@
+:root { --gold: #c5a059; --bg: #0a0b0c; }
+* { touch-action: manipulation; box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: white; font-family: sans-serif; overflow: hidden; }
+
+.app-header { padding: 50px 20px; text-align: center; border-bottom: 1px solid #222; }
+.balance-val { font-size: 48px; color: white; }
+
+#main-screen { height: 60vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.diamond-container { width: 250px; cursor: pointer; transition: transform 0.1s; }
+.diamond-container img { width: 100%; filter: drop-shadow(0 0 20px rgba(0,122,255,0.2)); }
+
+.energy-section { width: 80%; margin-top: 20px; }
+.energy-track { height: 4px; background: #222; border-radius: 10px; }
+#energy-fill { height: 100%; background: var(--gold); width: 100%; transition: 0.2s; }
+
+.tab-bar { position: fixed; bottom: 0; width: 100%; height: 80px; background: #1c1e21; display: flex; border-top: 1px solid #333; }
+.tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #555; font-size: 12px; }
+.tab-item.active { color: var(--gold); }
+
+#shop-screen { position: fixed; top: 100%; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 100; transition: 0.4s; padding: 20px; }
+#shop-screen.open { top: 0; }
+.close-btn { color: var(--gold); margin-bottom: 20px; cursor: pointer; }
