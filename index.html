@@ -1,75 +1,120 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>VAULT RAY</title>
+    <title>VAULT RAY FORCE</title>
     <script src="https://telegram.org"></script>
     <style>
-        :root { --bg: #090a0a; --green: #00ff88; --panel: #151717; }
-        * { -webkit-tap-highlight-color: transparent; user-select: none; touch-action: none; margin: 0; padding: 0; }
-        body { background: var(--bg); color: white; font-family: -apple-system, sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; align-items: center; }
-        
-        .header { margin-top: 60px; text-align: center; z-index: 10; }
-        .balance { font-size: 52px; font-weight: 900; color: var(--green); text-shadow: 0 0 30px rgba(0,255,136,0.6); }
-        
-        #surface { flex-grow: 1; width: 100%; display: flex; align-items: center; justify-content: center; position: relative; z-index: 5; }
-        #crystal { width: 260px; height: 260px; filter: drop-shadow(0 0 40px var(--green)); transition: transform 0.05s; }
-
-        .pop { position: absolute; color: var(--green); font-size: 38px; font-weight: 900; pointer-events: none; animation: fly 0.6s ease-out forwards; }
-        @keyframes fly { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-150px); opacity: 0; } }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #090a0a; }
+        canvas { display: block; touch-action: none; }
+        #ui { position: absolute; top: 60px; width: 100%; text-align: center; pointer-events: none; font-family: sans-serif; }
+        .balance { font-size: 52px; font-weight: 900; color: #00ff88; text-shadow: 0 0 20px rgba(0,255,136,0.5); }
+        .footer { position: absolute; bottom: 30px; width: 100%; display: flex; justify-content: space-around; color: #555; font-size: 12px; font-weight: bold; font-family: sans-serif; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div style="font-size: 12px; color: #666; letter-spacing: 2px; margin-bottom: 10px;">ВАШ БАЛАНС</div>
-        <div id="display" class="balance">0 RAY</div>
-    </div>
+<div id="ui">
+    <div style="font-size: 12px; color: #666; letter-spacing: 2px;">ВАШ БАЛАНС</div>
+    <div id="score" class="balance">0 RAY</div>
+</div>
 
-    <div id="surface">
-        <svg id="crystal" viewBox="0 0 100 100">
-            <path d="M50 5 L90 30 L90 70 L50 95 L10 70 L10 30 Z" fill="#00ff88" opacity="0.9" />
-            <path d="M50 5 L50 95 M10 30 L90 30 M10 70 L90 70" stroke="rgba(0,0,0,0.3)" stroke-width="1.5" />
-        </svg>
-    </div>
+<canvas id="game"></canvas>
 
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
+<div class="footer">
+    <div style="color: #00ff88">ДОБЫЧА</div>
+    <div>МАГАЗИН</div>
+    <div>ЗАДАНИЯ</div>
+</div>
 
-        let score = parseInt(localStorage.getItem('ray_v4')) || 0;
-        const display = document.getElementById('display');
-        const crystal = document.getElementById('crystal');
-        const surface = document.getElementById('surface');
+<script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+    
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+    const scoreEl = document.getElementById('score');
 
-        display.innerText = score + ' RAY';
+    let score = parseInt(localStorage.getItem('ray_canvas')) || 0;
+    scoreEl.innerText = score + ' RAY';
 
-        function handleTap(e) {
-            if (e.cancelable) e.preventDefault();
-            
-            score++;
-            display.innerText = score + ' RAY';
-            localStorage.setItem('ray_v4', score);
+    let crystalScale = 1;
+    let particles = [];
 
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
 
-            crystal.style.transform = 'scale(0.9)';
-            setTimeout(() => { crystal.style.transform = 'scale(1)'; }, 50);
+    // Отрисовка кристалла на Canvas
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 2;
 
-            const t = e.touches ? e.touches[0] : e;
-            const p = document.createElement('div');
-            p.className = 'pop';
-            p.innerText = '+1';
-            p.style.left = t.clientX + 'px';
-            p.style.top = t.clientY + 'px';
-            document.body.appendChild(p);
-            setTimeout(() => p.remove(), 600);
-        }
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.scale(crystalScale, crystalScale);
+        
+        // Рисуем изумрудный кристалл
+        ctx.beginPath();
+        ctx.moveTo(0, -100);
+        ctx.lineTo(80, -40);
+        ctx.lineTo(80, 40);
+        ctx.lineTo(0, 100);
+        ctx.lineTo(-80, 40);
+        ctx.lineTo(-80, -40);
+        ctx.closePath();
+        
+        ctx.fillStyle = '#00ff88';
+        ctx.shadowBlur = 30;
+        ctx.shadowColor = '#00ff88';
+        ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.stroke();
+        ctx.restore();
 
-        surface.addEventListener('touchstart', handleTap, { passive: false });
-        surface.addEventListener('mousedown', handleTap);
-        document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
-    </script>
+        // Рисуем вылетающие цифры
+        particles.forEach((p, i) => {
+            p.y -= 3;
+            p.alpha -= 0.02;
+            ctx.fillStyle = rgba(0, 255, 136, ${p.alpha});
+            ctx.font = 'bold 40px sans-serif';
+            ctx.fillText('+1', p.x, p.y);
+            if(p.alpha <= 0) particles.splice(i, 1);
+        });
+
+        requestAnimationFrame(draw);
+    }
+
+    // ХИТРЫЙ ОБРАБОТЧИК КЛИКА (на уровне Canvas)
+    function handleAction(e) {
+        e.preventDefault();
+        
+        score++;
+        scoreEl.innerText = score + ' RAY';
+        localStorage.setItem('ray_canvas', score);
+
+        if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+
+        // Анимация сжатия
+        crystalScale = 0.9;
+        setTimeout(() => crystalScale = 1, 50);
+
+        // Добавляем частицу в место клика
+        const t = e.touches ? e.touches[0] : e;
+        particles.push({ x: t.clientX, y: t.clientY, alpha: 1 });
+    }
+
+    // Вешаем события на сам объект Window, чтобы не промахнуться
+    window.addEventListener('touchstart', handleAction, { passive: false });
+    window.addEventListener('mousedown', handleAction);
+
+    draw();
+</script>
+
 </body>
 </html>
