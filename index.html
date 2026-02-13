@@ -1,14 +1,75 @@
-<div class="main">
-        <div id="tapper" class="click-area">
-            <svg viewBox="0 0 100 100" class="emerald-svg">
-                <path d="M50 5 L85 30 L85 70 L50 95 L15 70 L15 30 Z" fill="#21a038" stroke="#2ecc71" stroke-width="2""")/>>
-                <path d="M50 5 L50 95 M15 30 L85 30 M15 70 L85 70 M50 5 L15 30 M50 5 L85 30 M50 95 L15 70 M50 95 L85 70" stroke="rgba(255,255,255,0.2)" stroke-width="0.5""")/>>
-            </svg>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SBER VAULT</title>
+    <style>
+        :root { --sber: #21a038; --bg: #000; --card: #151517; --gray: #8e8e93; }
+        * { touch-action: manipulation; -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+        body { margin: 0; background: var(--bg); color: #fff; font-family: -apple-system, sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+
+        /* HEADER */
+        .header { padding: 60px 20px 25px; background: var(--card); border-radius: 0 0 24px 24px; border-bottom: 0.5px solid #333; }
+        .user-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .vip-tag { font-size: 10px; color: var(--sber); border: 1px solid var(--sber); padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+        .label { color: var(--gray); font-size: 13px; }
+        .balance { font-size: 42px; font-weight: 700; margin-top: 5px; letter-spacing: -1px; }
+        .green { color: var(--sber); }
+
+        /* MAIN AREA (Круг вместо кристалла) */
+        .main { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        
+        .click-circle {
+            width: 240px; height: 240px;
+            background: radial-gradient(circle, var(--sber) 0%, #1a5c24 100%);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 60px rgba(33, 160, 56, 0.4), inset 0 0 20px rgba(255,255,255,0.2);
+            border: 10px solid rgba(255,255,255,0.05);
+            transition: transform 0.05s;
+            cursor: pointer;
+        }
+        .tap-inner { width: 180px; height: 180px; border: 1px solid rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 32px; color: rgba(255,255,255,0.8); }
+
+        /* ENERGY */
+        .limit-card { width: 90%; background: var(--card); padding: 20px; border-radius: 20px; margin-bottom: 110px; }
+        .limit-header { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 10px; color: var(--gray); }
+        .bar-bg { height: 6px; background: #333; border-radius: 3px; overflow: hidden; }
+        #fill { height: 100%; background: var(--sber); width: 100%; transition: 0.2s; box-shadow: 0 0 10px var(--sber); }
+
+        /* NAVIGATION */
+        .nav { position: fixed; bottom: 0; width: 100%; height: 85px; background: rgba(20,20,22,0.95); display: flex; border-top: 0.5px solid #333; backdrop-filter: blur(10px); }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11px; color: var(--gray); }
+        .nav-item.active { color: var(--sber); }
+        .icon { font-size: 22px; margin-bottom: 4px; }
+
+        /* MODALS */
+        .sheet { position: fixed; top: 100%; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; transition: 0.4s cubic-bezier(0, 0.5, 0.5, 1); }
+        .sheet.open { top: 0; }
+        .sheet-box { position: absolute; bottom: 0; width: 100%; background: var(--card); border-radius: 24px 24px 0 0; padding: 30px 20px; }
+        .list-item { background: #222; padding: 18px; border-radius: 18px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border: 0.5px solid #333; }
+        .buy-btn { background: var(--sber); border: none; color: #fff; padding: 10px 20px; border-radius: 12px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="user-row">
+            <span class="label">Счет Private Banking</span>
+            <span class="vip-tag">VIP КЛИЕНТ</span>
+        </div>
+        <div class="balance"><span id="score">0</span> <span class="green">₽</span></div>
+    </div>
+
+    <div class="main">
+       <div id="tapper" class="click-circle">
+            <div class="tap-inner">RAY</div>
         </div>
 
         <div class="limit-card">
             <div class="limit-header">
-                <span>Доступный лимит</span>
+                <span>Лимит транзакций</span>
                 <span id="e-text">1000/1000</span>
             </div>
             <div class="bar-bg"><div id="fill"></div></div>
@@ -18,33 +79,33 @@
     <!-- МАРКЕТ -->
     <div id="shop" class="sheet">
         <div class="sheet-box">
-            <div class="handle" onclick="toggle('shop', false)"></div>
+            <div onclick="toggle('shop', false)" style="color:var(--sber); margin-bottom:20px; font-weight:600;">← Назад</div>
             <h2 style="margin: 0 0 25px 0">Платежи и услуги</h2>
             <div class="list-item">
-                <div><b>Мульти-клик</b><br><small style="color:var(--gray)">+1 к каждому тапу</small></div>
+                <div><b>Мульти-клик</b><br><small style="color:var(--gray)">+1 за операцию</small></div>
                 <button class="buy-btn" onclick="upgrade()">1,000 ₽</button>
             </div>
         </div>
     </div>
 
-    <!-- ИНВЕСТИЦИИ (Правая кнопка) -->
+    <!-- ИНВЕСТ -->
     <div id="invest" class="sheet">
         <div class="sheet-box">
-            <div class="handle" onclick="toggle('invest', false)"></div>
+            <div onclick="toggle('invest', false)" style="color:var(--sber); margin-bottom:20px; font-weight:600;">← Назад</div>
             <h2 style="margin: 0 0 25px 0">Инвестиции</h2>
             <div class="list-item">
-                <div><b>Пригласить друга</b><br><small style="color:var(--gray)">+5,000 ₽ на счет</small></div>
-                <button class="buy-btn" onclick="alert('Ссылка скопирована!')">SHARE</button>
+                <div><b>Реферальная программа</b><br><small style="color:var(--gray)">Пригласить партнера</small></div>
+                <button class="buy-btn" onclick="alert('Ссылка скопирована')">SHARE</button>
             </div>
         </div>
     </div>
 
     <nav class="nav">
-        <div class="nav-item active" id="btn-home" onclick="toggleAll(false)">
+        <div class="nav-item active" onclick="toggleAll()">
             <span class="icon">🏦</span>Главный
         </div>
         <div class="nav-item" onclick="toggle('shop', true)">
-            <span class="icon">🛍️</span>Платежи
+            <span class="icon">🛍️</span>Маркет
         </div>
         <div class="nav-item" onclick="toggle('invest', true)">
             <span class="icon">📊</span>Инвест
@@ -70,27 +131,17 @@
                 sync();
                 localStorage.setItem('v_bal', bal);
                 
-                // Эффекты
-                tapper.style.transform = "scale(0.9)";
+                tapper.style.transform = "scale(0.92)";
                 setTimeout(() => tapper.style.transform = "scale(1)", 80);
-                createParticle(e.touches[0].clientX, e.touches[0].clientY);
                 if(navigator.vibrate) navigator.vibrate(10);
             }
         });
-
-        function createParticle(x, y) {
-            const p = document.createElement('div');
-            p.className = 'plus-one'; p.innerText = '+' + pwr;
-            p.style.left = x + 'px'; p.style.top = y + 'px';
-            document.body.appendChild(p);
-            setTimeout(() => p.remove(), 600);
-        }
 
         function toggle(id, show) {
             document.getElementById(id).classList.toggle('open', show);
         }
 
-        function toggleAll(show) {
+        function toggleAll() {
             toggle('shop', false); toggle('invest', false);
         }
 
@@ -98,12 +149,12 @@
             if (bal >= 1000) {
                 bal -= 1000; pwr += 1;
                 localStorage.setItem('v_bal', bal); localStorage.setItem('v_pwr', pwr);
-                sync(); alert('Пакет услуг обновлен!');
+                sync(); alert('Пакет подключен!');
             } else { alert('Недостаточно средств'); }
-            }
+        }
 
         setInterval(() => { if(nrg < 1000) { nrg += 2; sync(); } }, 1000);
         sync();
     </script>
 </body>
-</html>
+</html>     
