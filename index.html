@@ -7,49 +7,50 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="bank-header">
-        <div class="label">Счёт Private Banking</div>
-        <div class="balance-wrap">
-            <div id="score" class="balance-val">0</div>
-            <div class="symbol">₽</div>
+    <div class="sber-header">
+        <div class="acc-label">Ваш баланс (RAY)</div>
+        <div class="balance-row">
+            <span id="score">0</span> <span class="rub">₽</span>
         </div>
     </div>
 
-    <div id="game-zone">
-        <div class="diamond-wrapper" id="tapper">
-            <img src="https://img.icons8.com" alt="Emerald">
+    <div id="main-screen">
+        <!-- Встроенный зеленый кристалл, который НИКОГДА не пропадет -->
+        <div class="diamond-area" id="tapper">
+            <svg viewBox="0 0 100 100" class="emerald">
+                <path d="M50 5 L85 30 L85 70 L50 95 L15 70 L15 30 Z" fill="#21a038" stroke="#2ecc71" stroke-width="2""")/>>
+                <path d="M50 5 L50 95 M15 30 L85 30 M15 70 L85 70 M50 5 L15 30 M50 5 L85 30 M50 95 L15 70 M50 95 L85 70" stroke="rgba(255,255,255,0.2)" stroke-width="0.5""")/>>
+            </svg>
         </div>
-        <div class="energy-card">
-            <div class="energy-meta">
-                <span style="color: #8e8e93;">Доступный лимит</span>
+
+        <div class="limit-box">
+            <div class="limit-info">
+                <span>Лимит на сегодня</span>
                 <span id="e-text">1000/1000</span>
             </div>
             <div class="track"><div id="fill"></div></div>
         </div>
     </div>
 
+    <!-- Тот самый Маркет снизу -->
     <div id="market">
-        <div onclick="toggleMarket(false)" style="color: #21a038; font-weight: 600; margin-bottom: 30px;">← Назад</div>
-        <h2 style="font-weight: 700;">Платежи и услуги</h2>
-        <div class="item-card">
-            <div>
-                <div style="font-size: 17px; font-weight: 600;">Авто-инвест</div>
-                <div style="color: #8e8e93; font-size: 13px;">Увеличить силу тапа</div>
+        <div class="market-content">
+            <div class="close-bar" onclick="toggleShop(false)"></div>
+            <h2 class="title">Витрина</h2>
+            <div class="card">
+                <div class="card-text">
+                    <b>Мульти-счет</b>
+                    <p>Доходность +1 за клик</p>
+                </div>
+                <button onclick="upgrade()">1,000 ₽</button>
             </div>
-            <button class="buy-action" onclick="upgrade()">1 000 ₽</button>
         </div>
     </div>
 
-    <nav class="sber-nav">
-        <div class="nav-btn active" onclick="toggleMarket(false)">
-            <span class="icon">💳</span>Главный
-        </div>
-        <div class="nav-btn" onclick="toggleMarket(true)">
-            <span class="icon">🛍️</span>Магазин
-        </div>
-        <div class="nav-btn">
-            <span class="icon">📊</span>Курсы
-        </div>
+    <nav class="footer">
+        <div class="nav-item active" onclick="toggleShop(false)">🏦 Главный</div>
+        <div class="nav-item" onclick="toggleShop(true)">🛍️ Маркет</div>
+        <div class="nav-item">📊 История</div>
     </nav>
 
     <script src="script.js"></script>
