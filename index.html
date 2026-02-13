@@ -2,86 +2,117 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>VAULT RAY - Game</title>
-    <script src="https://cdn.jsdelivr.net"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>VAULT RAY PREMIUM</title>
+    <script src="https://cdnjs.cloudflare.com"></script>
     <style>
-        body { margin: 0; background: #050505; overflow: hidden; font-family: sans-serif; }
-        #game-ui { position: absolute; top: 20px; width: 100%; text-align: center; color: #00f2ff; pointer-events: none; }
-        .balance { font-size: 42px; font-weight: bold; text-shadow: 0 0 15px #00f2ff; }
+        :root {
+            --bg: #090a0a;
+            --card: #151717;
+            --green: #00ff88; /* Ядовитый премиум зеленый */
+            --text: #ffffff;
+        }
+        * { -webkit-tap-highlight-color: transparent; user-select: none; }
+        body, html { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; height: 100vh; overflow: hidden; }
+        
+        /* Хедер как в онлайн-банке */
+        .header {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100px;
+            background: linear-gradient(180deg, rgba(21,23,23,1) 0%, rgba(9,10,10,0) 100%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100;
+        }
+        .label { font-size: 11px; text-transform: uppercase; color: #666; letter-spacing: 2px; margin-bottom: 4px; }
+        .balance { font-size: 40px; font-weight: 800; color: var(--green); text-shadow: 0 0 20px rgba(0,255,136,0.3); }
+
+        #game-canvas { width: 100%; height: 100%; display: block; }
+
+        /* Футер с кнопками (заготовка под Магазин) */
+        .footer {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            width: 90%; display: flex; justify-content: space-around;
+            background: rgba(21, 23, 23, 0.8); backdrop-filter: blur(10px);
+            padding: 15px; border-radius: 20px; border: 1px solid #2d2f2f;
+        }
+        .btn { color: #888; font-size: 12px; text-align: center; text-decoration: none; }
+        .btn.active { color: var(--green); }
     </style>
 </head>
 <body>
 
-    <div id="game-ui">
-        <div class="balance" id="ray-balance">0 RAY</div>
+    <div class="header">
+        <div id="lang-title" class="label">VAULT BALANCE</div>
+        <div id="score" class="balance">0 RAY</div>
+    </div>
+
+    <div id="game-canvas"></div>
+
+    <div class="footer">
+        <div class="btn active" id="btn-mine">MINE</div>
+        <div class="btn" id="btn-shop">SHOP</div>
+        <div class="btn" id="btn-task">TASKS</div>
     </div>
 
     <script>
-    const config = {
-        type: Phaser.AUTO,
-        width: window.innerWidth,
-        height: window.innerHeight,
-        transparent: true,
-        parent: 'game-container',
-        scene: { preload: preload, create: create }
-    };
+        // 1. ЛОКАЛИЗАЦИЯ
+        const isRu = (navigator.language || navigator.userLanguage).includes('ru');
+        document.getElementById('lang-title').innerText = isRu ? "ВАШ БАЛАНС" : "VAULT BALANCE";
+        document.getElementById('btn-mine').innerText = isRu ? "ДОБЫЧА" : "MINE";
+        document.getElementById('btn-shop').innerText = isRu ? "МАГАЗИН" : "SHOP";
+        document.getElementById('btn-task').innerText = isRu ? "ЗАДАНИЯ" : "TASKS";
 
-    let score = 0;
-    const game = new Phaser.Game(config);
+        // 2. ДВИЖОК
+        const app = new PIXI.Application({
+            resizeTo: window,
+            backgroundAlpha: 0,
+            antialias: true
+        });
+        document.getElementById('game-canvas').appendChild(app.view);
 
-    function preload() {
-        // Замени ссылку на ту картинку кристалла, которая тебе понравилась выше
-        this.load.image('crystal', 'https://pngimg.com'); 
-    }
+        let score = 0;
 
-    function create() {
-        const cx = this.cameras.main.centerX;
-        const cy = this.cameras.main.centerY;
+        // Кристалл (Изумруд)
+        const crystal = PIXI.Sprite.from('https://cdn-icons-png.flaticon.com');
+        crystal.anchor.set(0.5);
+        crystal.x = app.screen.width / 2;
+        crystal.y = app.screen.height / 2;
+        crystal.scale.set(0.5);
+        crystal.eventMode = 'static';
+        app.stage.addChild(crystal);
 
-        // Создаем кристалл
-        const crystal = this.add.sprite(cx, cy, 'crystal').setInteractive();
-        crystal.setScale(0.6);
-
-        // Пульсация (дыхание кристалла)
-        this.tweens.add({
-            targets: crystal,
-            scale: 0.65,
-            duration: 2000,
-            yoyo: true,
-            repeat: -1,
-            ease: 'Sine.easeInOut'
+        // Мягкое вращение и пульс
+        app.ticker.add(() => {
+            crystal.rotation += 0.005;
+            const s = 0.5 + Math.sin(Date.now() * 0.001) * 0.01;
+            crystal.scale.set(s);
         });
 
-        // Эффект при клике
-        crystal.on('pointerdown', (pointer) => {
-            score++;
-            document.getElementById('ray-balance').innerText = score + ' RAY';
-
-            // Рывок при клике
-            this.tweens.add({
-                targets: crystal,
-                scale: 0.55,
-                duration: 50,
-                yoyo: true
-            });
-
-            // Вылетающее число +1
-            const text = this.add.text(pointer.x, pointer.y, '+1', { 
-                fontSize: '32px', 
-                fill: '#00f2ff', 
-                fontWeight: 'bold' 
-            });
+        // ТАП МЕХАНИКА
+        crystal.on('pointerdown', (e) => {
+            score += 1;
+            document.getElementById('score').innerText = score + ' RAY';
             
-            this.tweens.add({
-                targets: text,
-                y: pointer.y - 150,
-                alpha: 0,
-                duration: 800,
-                onComplete: () => text.destroy()
-            });
+            // Вибро (если доступно)
+            if (navigator.vibrate) navigator.vibrate(10);
+
+            // Эффект сжатия
+            crystal.scale.set(0.45);
+            setTimeout(() => crystal.scale.set(0.5), 50);
+
+            // Вылет цифры
+            createFloatingText(e.global.x, e.global.y);
         });
-    }
+        function createFloatingText(x, y) {
+            const txt = new PIXI.Text('+1', {
+                fontSize: 36, fill: 0x00ff88, fontWeight: '900',
+                dropShadow: true, dropShadowColor: '#000000', dropShadowBlur: 4
+            });
+            txt.x = x; txt.y = y;
+            app.stage.addChild(txt);
+            app.ticker.add(function anim() {
+                txt.y -= 4; txt.alpha -= 0.02;
+                if (txt.alpha <= 0) { app.stage.removeChild(txt); app.ticker.remove(anim); }
+            });
+        }
     </script>
 </body>
 </html>
