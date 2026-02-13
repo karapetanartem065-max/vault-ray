@@ -1,126 +1,75 @@
-function handleTap(e) {
-            // ЖЕСТКО блокируем системные свайпы Telegram
-            if (e.cancelable) e.preventDefault();
-            
-            score++;
-            display.innerText = score + ' RAY';
-            localStorage.setItem('ray_v3', score);
-
-            // Вибро через Telegram API
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-
-            // Анимация кристалла
-            crystal.style.transform = 'scale(0.9)';
-            setTimeout(() => { crystal.style.transform = 'scale(1)'; }, 50);
-
-            // Число +1
-            const touch = e.touches ? e.touches[0] : e;
-            const p = document.createElement('div');
-            p.className = 'plus-one';
-            p.innerText = '+1';
-            p.style.left = touch.clientX + 'px';
-            p.style.top = (touch.clientY - 40) + 'px';
-            document.body.appendChild(p);
-            setTimeout(() => p.remove(), 600);
-        }
-
-        // Ставим слушатели на все виды касаний
-        surface.addEventListener('touchstart', handleTap, { passive: false });
-        surface.addEventListener('mousedown', handleTap);
-
-        // Чтобы экран не дергался при быстрых тапах
-        document.addEventListener('touchmove', (e) => { e.preventDefault(); }, { passive: false });
-    </script>
-</body>
-</html>
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>VAULT RAY PREMIUM</title>
-    <!-- ПОДКЛЮЧАЕМ ТЕЛЕГРАМ (БЕЗ ЭТОГО КЛИКАТЬ НЕ БУДЕТ) -->
+    <title>VAULT RAY</title>
     <script src="https://telegram.org"></script>
     <style>
         :root { --bg: #090a0a; --green: #00ff88; --panel: #151717; }
-        * { -webkit-tap-highlight-color: transparent; user-select: none; touch-action: none; }
-        body { margin: 0; background: var(--bg); color: white; font-family: -apple-system, sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+        * { -webkit-tap-highlight-color: transparent; user-select: none; touch-action: none; margin: 0; padding: 0; }
+        body { background: var(--bg); color: white; font-family: -apple-system, sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; align-items: center; }
         
-        .header { padding-top: 50px; text-align: center; z-index: 10; pointer-events: none; }
-        .label { font-size: 12px; color: #666; letter-spacing: 2px; margin-bottom: 5px; }
-        .balance { font-size: 48px; font-weight: 900; color: var(--green); text-shadow: 0 0 25px rgba(0,255,136,0.5); }
+        .header { margin-top: 60px; text-align: center; z-index: 10; }
+        .balance { font-size: 52px; font-weight: 900; color: var(--green); text-shadow: 0 0 30px rgba(0,255,136,0.6); }
         
-        /* Зона клика */
-        #click-surface { 
-            flex-grow: 1; display: flex; align-items: center; justify-content: center; 
-            position: relative; z-index: 5; width: 100%;
-        }
+        #surface { flex-grow: 1; width: 100%; display: flex; align-items: center; justify-content: center; position: relative; z-index: 5; }
+        #crystal { width: 260px; height: 260px; filter: drop-shadow(0 0 40px var(--green)); transition: transform 0.05s; }
 
-        #crystal {
-            width: 250px; height: 250px;
-            filter: drop-shadow(0 0 30px var(--green));
-            transition: transform 0.05s ease;
-        }
-
-        .plus-one {
-            position: absolute; color: var(--green); font-size: 38px; font-weight: 900;
-            pointer-events: none; animation: fly 0.6s ease-out forwards; z-index: 100;
-        }
-        @keyframes fly {
-            0% { transform: translateY(0) scale(1); opacity: 1; }
-            100% { transform: translateY(-150px) scale(1.2); opacity: 0; }
-        }
-
-        .footer { background: var(--panel); padding: 25px; border-top: 1px solid #2d2f2f; display: flex; justify-content: space-around; z-index: 10; }
-        .nav-item { color: #555; font-size: 12px; font-weight: bold; text-transform: uppercase; }
-        .active { color: var(--green); }
+        .pop { position: absolute; color: var(--green); font-size: 38px; font-weight: 900; pointer-events: none; animation: fly 0.6s ease-out forwards; }
+        @keyframes fly { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-150px); opacity: 0; } }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div id="lang-label" class="label">ВАШ БАЛАНС</div>
-        <div id="score-display" class="balance">0 RAY</div>
+        <div style="font-size: 12px; color: #666; letter-spacing: 2px; margin-bottom: 10px;">ВАШ БАЛАНС</div>
+        <div id="display" class="balance">0 RAY</div>
     </div>
 
-    <div id="click-surface">
-        <!-- Твой новый нормальный Кристалл (SVG - всегда работает) -->
+    <div id="surface">
         <svg id="crystal" viewBox="0 0 100 100">
-            <defs>
-                <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" style="stop-color:#00ff88;stop-opacity:1" />
-                    <stop offset="100%" style="stop-color:#008f4f;stop-opacity:1" />
-                </linearGradient>
-            </defs>
-            <path d="M50 5 L90 30 L90 70 L50 95 L10 70 L10 30 Z" fill="url(#grad)" stroke="#00ff88" stroke-width="1" />
-            <path d="M50 5 L50 95 M10 30 L90 30 M10 70 L90 70 M50 5 L10 70 M50 5 L90 70 M10 30 L90 70" stroke="rgba(255,255,255,0.2)" stroke-width="0.5" />
+            <path d="M50 5 L90 30 L90 70 L50 95 L10 70 L10 30 Z" fill="#00ff88" opacity="0.9" />
+            <path d="M50 5 L50 95 M10 30 L90 30 M10 70 L90 70" stroke="rgba(0,0,0,0.3)" stroke-width="1.5" />
         </svg>
     </div>
 
-    <div class="footer">
-        <div class="nav-item active" id="m1">ДОБЫЧА</div>
-        <div class="nav-item" id="m2">МАГАЗИН</div>
-        <div class="nav-item" id="m3">ЗАДАНИЯ</div>
-    </div>
-
     <script>
-        // Инициализация Telegram
         const tg = window.Telegram.WebApp;
-        tg.expand(); // Раскрываем на весь экран сразу
-        tg.ready();
+        tg.expand();
 
-        // Локализация
-        const isRu = (navigator.language || '').includes('ru');
-        if (!isRu) {
-            document.getElementById('lang-label').innerText = "YOUR BALANCE";
-            document.getElementById('m1').innerText = "MINE";
-            document.getElementById('m2').innerText = "SHOP";
-            document.getElementById('m3').innerText = "TASKS";
-        }
-
-        let score = parseInt(localStorage.getItem('ray_v3')) || 0;
-        const display = document.getElementById('score-display');
+        let score = parseInt(localStorage.getItem('ray_v4')) || 0;
+        const display = document.getElementById('display');
         const crystal = document.getElementById('crystal');
-        const surface = document.getElementById('click-surface');
+        const surface = document.getElementById('surface');
 
         display.innerText = score + ' RAY';
+
+        function handleTap(e) {
+            if (e.cancelable) e.preventDefault();
+            
+            score++;
+            display.innerText = score + ' RAY';
+            localStorage.setItem('ray_v4', score);
+
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+
+            crystal.style.transform = 'scale(0.9)';
+            setTimeout(() => { crystal.style.transform = 'scale(1)'; }, 50);
+
+            const t = e.touches ? e.touches[0] : e;
+            const p = document.createElement('div');
+            p.className = 'pop';
+            p.innerText = '+1';
+            p.style.left = t.clientX + 'px';
+            p.style.top = t.clientY + 'px';
+            document.body.appendChild(p);
+            setTimeout(() => p.remove(), 600);
+        }
+
+        surface.addEventListener('touchstart', handleTap, { passive: false });
+        surface.addEventListener('mousedown', handleTap);
+        document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+    </script>
+</body>
+</html>
