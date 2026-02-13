@@ -1,134 +1,159 @@
-<div id="tapper" class="click-circle"><div class="core-text">VAULT</div></div>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VAULT RAY</title>
+    <style>
+        :root { --sber: #21a038; --bg: #0a0a0b; --card: #1c1c1e; --gray: #8e8e93; }
+        * { touch-action: manipulation; -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+        body { margin: 0; background: var(--bg); color: #fff; font-family: -apple-system, sans-serif; height: 100vh; overflow: hidden; }
+        
+        /* ВЕРХНЯЯ ПАНЕЛЬ */
+        .top-bar { padding: 50px 20px 20px; background: linear-gradient(180deg, #161616 0%, transparent 100%); border-bottom: 0.5px solid #222; }
+        .user-info { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--gray); letter-spacing: 1px; }
+        .valter-label { font-weight: 800; color: #fff; cursor: pointer; }
+        .balance { font-size: 44px; font-weight: 800; margin-top: 10px; display: flex; align-items: center; gap: 10px; }
+
+        /* ЯДРО */
+        .main { height: 55vh; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        .click-circle { 
+            width: 230px; height: 230px; border-radius: 50%;
+            background: radial-gradient(circle, var(--sber) 0%, #0d3814 100%);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 50px rgba(33, 160, 56, 0.2);
+            border: 6px solid rgba(255,255,255,0.05);
+            transition: transform 0.05s; z-index: 10;
+        }
+        .core-text { font-size: 32px; font-weight: 900; letter-spacing: 2px; }
+
+        /* ЭНЕРГИЯ */
+        .energy-box { width: 90%; margin: 0 auto; position: fixed; bottom: 110px; left: 5%; }
+        .bar { height: 8px; background: #2c2c2e; border-radius: 10px; overflow: hidden; margin-top: 8px; }
+        #fill { height: 100%; background: var(--sber); width: 100%; transition: 0.3s; }
+
+        /* ЭКРАНЫ (МАРКЕТ И РЕЙТИНГ) */
+        .screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 100; transform: translateY(100%); transition: 0.4s cubic-bezier(0, 0.5, 0.5, 1); }
+        .screen.active { transform: translateY(0); }
+        .screen-header { padding: 60px 20px 20px; display: flex; align-items: center; gap: 15px; border-bottom: 0.5px solid #333; }
+        .back-btn { font-size: 24px; color: var(--sber); padding: 5px 15px; background: #1c1c1e; border-radius: 10px; }
+
+        /* АНИМАЦИЯ ТАПА */
+        .tap-pop { position: absolute; color: #fff; font-weight: 900; font-size: 28px; pointer-events: none; animation: pop 0.6s ease-out forwards; z-index: 1000; }
+        @keyframes pop { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-120px); opacity: 0; } }
+
+        /* НАВИГАЦИЯ */
+        .nav { position: fixed; bottom: 0; width: 100%; height: 85px; background: rgba(0,0,0,0.9); display: flex; border-top: 0.5px solid #222; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--gray); font-size: 10px; text-transform: uppercase; }
+        .nav-item.active { color: var(--sber); }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <div class="user-info">
+            <span class="valter-label" onclick="hAdmin()">VAULT RAY SYSTEM⚡</span>
+            <span>VIP TIER</span>
+        </div>
+        <div class="balance"><span id="score">0</span> <span style="font-size:20px; color:var(--sber)">RAY</span></div>
+    </div>
+
+    <div class="main">
+        <div id="tapper" class="click-circle"><div class="core-text">VAULT</div></div>
     </div>
 
     <div class="energy-box">
-        <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:600;">
-            <span id="txt-nrg-label">ENERGY</span>
-            <span id="e-text">1000/1000</span>
+        <div style="display:flex; justify-content:space-between; font-size:12px;">
+            <span id="l-nrg">ENERGY</span><span id="e-text">1000/1000</span>
         </div>
-        <div class="bar-container"><div id="fill"></div></div>
+        <div class="bar"><div id="fill"></div></div>
     </div>
 
-    <!-- МАРКЕТ -->
-    <div id="screen-market" class="screen">
-        <div class="screen-header">
-            <div class="back-btn" onclick="closeScreens()">←</div>
-            <h2 id="txt-m-title">Market Store</h2>
-        </div>
+    <div id="scr-market" class="screen">
+      <div class="screen-header"><div class="back-btn" onclick="closeAll()">←</div><h2 id="l-mkt">Market</h2></div>
         <div style="padding:20px;">
-            <div class="rank-item">
+            <div style="background:#1c1c1e; padding:20px; border-radius:15px; display:flex; justify-content:space-between; align-items:center;">
                 <div><b>Multi-Tap</b><br><small>+1 per click</small></div>
-                <button style="background:var(--sber); border:none; color:#fff; padding:10px 15px; border-radius:10px;" onclick="buy('click', 1000, 1)">1,000</button>
-            </div>
-            <div class="rank-item" style="border-color: #f7931a;">
-                <div><b>Crypto-Boost</b><br><small>Buy via TON</small></div>
-                <button style="background:#fff; color:#000; border:none; padding:10px 15px; border-radius:10px; font-weight:bold;" onclick="window.location.href='https://t.me'">PAY</button>
+                <button onclick="buy(1000)" style="background:var(--sber); border:none; color:#fff; padding:10px 20px; border-radius:10px;">1,000</button>
             </div>
         </div>
     </div>
 
-    <!-- РЕЙТИНГ -->
-    <div id="screen-rating" class="screen">
-        <div class="screen-header">
-            <div class="back-btn" onclick="closeScreens()">←</div>
-            <h2 id="txt-r-title">Global Leaders</h2>
-        </div>
-        <div class="rank-list" id="rank-content">
-            <!-- Генерация списка стран -->
-        </div>
+    <div id="scr-rank" class="screen">
+        <div class="screen-header"><div class="back-btn" onclick="closeAll()">←</div><h2 id="l-rnk">Global Rating</h2></div>
+        <div id="rank-list" style="padding:20px;"></div>
     </div>
 
     <nav class="nav">
-        <div class="nav-item active" onclick="closeScreens()">🏠 <span id="n-1">Home</span></div>
-        <div class="nav-item" onclick="openScreen('market')">🛍️ <span id="n-2">Shop</span></div>
-        <div class="nav-item" onclick="openScreen('rating')">🏆 <span id="n-3">Rank</span></div>
+        <div class="nav-item active" onclick="closeAll()">🏠 <span id="b1">Home</span></div>
+        <div class="nav-item" onclick="openS('market')">🛍️ <span id="b2">Shop</span></div>
+        <div class="nav-item" onclick="openS('rank')">🏆 <span id="b3">Rank</span></div>
     </nav>
 
     <script>
-        // ЛОГИКА ЯЗЫКА
         const isRu = navigator.language.startsWith('ru');
-        const lang = {
-            ru: { m: "Маркет Хранилища", r: "Мировой Рейтинг", n1: "Главный", n2: "Маркет", n3: "Рейтинг", nrg: "ЭНЕРГИЯ" },
-            en: { m: "Vault Market", r: "World Rating", n1: "Home", n2: "Market", n3: "Rank", nrg: "ENERGY" }
+        const txt = {
+            ru: { n1: "Главный", n2: "Маркет", n3: "Рейтинг", nrg: "ЭНЕРГИЯ", mkt: "Магазин", rnk: "Лидеры" },
+            en: { n1: "Home", n2: "Shop", n3: "Rank", nrg: "ENERGY", mkt: "Market", rnk: "Rating" }
         };
-        const s = isRu ? lang.ru : lang.en;
+        const s = isRu ? txt.ru : txt.en;
 
         let bal = parseInt(localStorage.getItem('vr_bal')) || 0;
         let pwr = parseInt(localStorage.getItem('vr_pwr')) || 1;
         let nrg = 1000;
-        let lastTap = 0;
-
-        function init() {
-            document.getElementById('txt-m-title').innerText = s.m;
-            document.getElementById('txt-r-title').innerText = s.r;
-            document.getElementById('n-1').innerText = s.n1;
-            document.getElementById('n-2').innerText = s.n2;
-            document.getElementById('n-3').innerText = s.n3;
-            document.getElementById('txt-nrg-label').innerText = s.nrg;
-            
-            // Заполняем рейтинг (10 стран)
-            const countries = [
-                {n: "Russia", f: "🇷🇺", v: "2.4B"}, {n: "USA", f: "🇺🇸", v: "1.9B"}, 
-                {n: "UAE", f: "🇦🇪", v: "1.1B"}, {n: "China", f: "🇨🇳", v: "980M"},
-                {n: "Germany", f: "🇩🇪", v: "500M"}, {n: "UK", f: "🇬🇧", v: "420M"}
-            ];
-            document.getElementById('rank-content').innerHTML = countries.map((c, i) => `
-                <div class="rank-item">
-                    <span>${i+1}. ${c.f} ${c.n}</span>
-                    <b style="color:var(--sber)">${c.v}</b>
-                </div>
-            `).join('');
-            sync();
-        }
+        let lastT = 0;
 
         function sync() {
             document.getElementById('score').innerText = bal.toLocaleString();
             document.getElementById('e-text').innerText = nrg + '/1000';
             document.getElementById('fill').style.width = (nrg / 10) + '%';
             localStorage.setItem('vr_bal', bal);
+            localStorage.setItem('vr_pwr', pwr);
         }
 
-        const tapper = document.
-         getElementById('tapper');
-        tapper.addEventListener('touchstart', (e) => {
+        document.getElementById('tapper').addEventListener('touchstart', (e) => {
             e.preventDefault();
             let now = Date.now();
-            if (now - lastTap < 45) return; // Усиленный анти-клик
-            if (nrg >= pwr) {
-                bal += pwr; nrg -= pwr;
-                lastTap = now;
-                if(navigator.vibrate) navigator.vibrate(10);
-                tapper.style.transform = "scale(0.94)";
-                setTimeout(() => tapper.style.transform = "scale(1)", 50);
-                sync();
-            }
+            if (now - lastT < 45 || nrg < pwr) return;
+            
+            bal += pwr; nrg -= pwr; lastT = now;
+            if(navigator.vibrate) navigator.vibrate(10);
+            
+            // Анимация тапа
+            const p = document.createElement('div');
+            p.className = 'tap-pop';
+            p.innerText = +${pwr};
+            p.style.left = e.touches[0].pageX + 'px';
+            p.style.top = e.touches[0].pageY + 'px';
+            document.body.appendChild(p);
+            setTimeout(() => p.remove(), 600);
+
+            sync();
         });
 
-        function openScreen(id) {
-            document.getElementById('screen-'+id).classList.add('active');
-        }
+        function openS(id) { document.getElementById('scr-'+id).classList.add('active'); }
+        function closeAll() { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); }
+        function buy(p) { if(bal >= p) { bal -= p; pwr += 1; sync(); alert("OK!"); } }
 
-        function closeScreens() {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        function hAdmin() {
+            let c = 0; return (function(){ c++; if(c>=5){ if(prompt("Code:")==="777") bal=parseInt(prompt("Set:",bal)); sync(); c=0; } })();
         }
-
-        function buy(t, p, b) {
-            if(bal >= p) { bal -= p; pwr += b; sync(); alert("Success!"); }
-        }
-
-        // Скрытая Админка (5 кликов по VAULT RAY SYSTEM, код 777)
-        let aCl = 0;
-        function handleAdmin() {
-            aCl++; if(aCl >= 5) {
-                if(prompt("Admin Access:") === "777") {
-                    bal = parseInt(prompt("New Balance:", bal)) || bal; sync();
-                }
-                aCl = 0;
-            }
-        }
+        const hAdminBound = hAdmin; // Для вызова через onclick
 
         setInterval(() => { if(nrg < 1000) nrg += 3; sync(); }, 1000);
-        init();
+
+        // Инициализация текста
+        document.getElementById('b1').innerText = s.n1; document.getElementById('b2').innerText = s.n2;
+        document.getElementById('b3').innerText = s.n3; document.getElementById('l-nrg').innerText = s.nrg;
+        document.getElementById('l-mkt').innerText = s.mkt; document.getElementById('l-rnk').innerText = s.rnk;
+        
+        const countries = [{f:"🇷🇺", n:"Russia", v:"2.4B"}, {f:"🇺🇸", n:"USA", v:"1.8B"}, {f:"🇦🇪", n:"UAE", v:"1.2B"}, {f:"🇩🇪", n:"Germany", v:"600M"}];
+        document.getElementById('rank-list').innerHTML = countries.map((c,i) => `
+            <div style="background:#1c1c1e; padding:15px; border-radius:12px; margin-bottom:10px; display:flex; justify-content:space-between;">
+            <span>${i+1}. ${c.f} ${c.n}</span><b>${c.v}</b>
+            </div>`).join('');
+
+        sync();
     </script>
 </body>
-</html>   
+</html>
