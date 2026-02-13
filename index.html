@@ -3,52 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SBER VAULT</title>
+    <title>VAULT RAY</title>
     <style>
         :root { --sber: #21a038; --bg: #000; --card: #151517; --gray: #8e8e93; }
         * { touch-action: manipulation; -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
         body { margin: 0; background: var(--bg); color: #fff; font-family: -apple-system, sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
-
-        /* HEADER */
+        
         .header { padding: 60px 20px 25px; background: var(--card); border-radius: 0 0 24px 24px; border-bottom: 0.5px solid #333; }
         .user-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .vip-tag { font-size: 10px; color: var(--sber); border: 1px solid var(--sber); padding: 2px 6px; border-radius: 4px; font-weight: bold; }
-        .label { color: var(--gray); font-size: 13px; }
+        .label { color: var(--gray); font-size: 13px; cursor: pointer; }
         .balance { font-size: 42px; font-weight: 700; margin-top: 5px; letter-spacing: -1px; }
         .green { color: var(--sber); }
 
-        /* MAIN AREA (Круг вместо кристалла) */
         .main { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        
-        .click-circle {
-            width: 240px; height: 240px;
-            background: radial-gradient(circle, var(--sber) 0%, #1a5c24 100%);
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 60px rgba(33, 160, 56, 0.4), inset 0 0 20px rgba(255,255,255,0.2);
-            border: 10px solid rgba(255,255,255,0.05);
-            transition: transform 0.05s;
-            cursor: pointer;
-        }
-        .tap-inner { width: 180px; height: 180px; border: 1px solid rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 32px; color: rgba(255,255,255,0.8); }
+        .click-circle { width: 240px; height: 240px; background: radial-gradient(circle, var(--sber) 0%, #1a5c24 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 60px rgba(33, 160, 56, 0.4); border: 10px solid rgba(255,255,255,0.05); transition: transform 0.05s; cursor: pointer; }
+        .tap-inner { font-weight: 900; font-size: 32px; color: rgba(255,255,255,0.8); }
 
-        /* ENERGY */
         .limit-card { width: 90%; background: var(--card); padding: 20px; border-radius: 20px; margin-bottom: 110px; }
         .limit-header { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 10px; color: var(--gray); }
         .bar-bg { height: 6px; background: #333; border-radius: 3px; overflow: hidden; }
-        #fill { height: 100%; background: var(--sber); width: 100%; transition: 0.2s; box-shadow: 0 0 10px var(--sber); }
+        #fill { height: 100%; background: var(--sber); width: 100%; transition: 0.2s; }
 
-        /* NAVIGATION */
         .nav { position: fixed; bottom: 0; width: 100%; height: 85px; background: rgba(20,20,22,0.95); display: flex; border-top: 0.5px solid #333; backdrop-filter: blur(10px); }
         .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11px; color: var(--gray); }
         .nav-item.active { color: var(--sber); }
-        .icon { font-size: 22px; margin-bottom: 4px; }
 
-        /* MODALS */
-        .sheet { position: fixed; top: 100%; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; transition: 0.4s cubic-bezier(0, 0.5, 0.5, 1); }
+        .sheet { position: fixed; top: 100%; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; transition: 0.4s; }
         .sheet.open { top: 0; }
         .sheet-box { position: absolute; bottom: 0; width: 100%; background: var(--card); border-radius: 24px 24px 0 0; padding: 30px 20px; }
-        .list-item { background: #222; padding: 18px; border-radius: 18px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border: 0.5px solid #333; }
+        .list-item { background: #222; padding: 18px; border-radius: 18px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
         .buy-btn { background: var(--sber); border: none; color: #fff; padding: 10px 20px; border-radius: 12px; font-weight: bold; }
     </style>
 </head>
@@ -56,105 +40,103 @@
 
     <div class="header">
         <div class="user-row">
-            <span class="label">Счет Private Banking</span>
-            <span class="vip-tag">VIP КЛИЕНТ</span>
+            <span class="label" id="admin-trigger" onclick="handleAdmin()">VAULT RAY SYSTEM</span>
+            <span class="vip-tag">PRIVATE BANKING</span>
         </div>
-        <div class="balance"><span id="score">0</span> <span class="green">₽</span></div>
+        <div class="balance"><span id="score">0</span> <span class="green">VR</span></div>
     </div>
 
     <div class="main">
-       <div id="tapper" class="click-circle">
-            <div class="tap-inner">RAY</div>
-        </div>
-
+        <div id="tapper" class="click-circle"><div class="tap-inner">RAY</div></div>
         <div class="limit-card">
-            <div class="limit-header">
-                <span>Лимит транзакций</span>
-                <span id="e-text">1000/1000</span>
-            </div>
+            <div class="limit-header"><span>Лимит энергии</span><span id="e-text">1000/1000</span></div>
             <div class="bar-bg"><div id="fill"></div></div>
         </div>
     </div>
 
-    <!-- МАРКЕТ -->
     <div id="shop" class="sheet">
         <div class="sheet-box">
-            <div onclick="toggle('shop', false)" style="color:var(--sber); margin-bottom:20px; font-weight:600;">← Назад</div>
-            <h2 style="margin: 0 0 25px 0">Платежи и услуги</h2>
+            <div onclick="toggle('shop', false)" style="color:var(--sber); margin-bottom:20px;">← Назад</div>
+            <h2>VAULT Маркет</h2>
             <div class="list-item">
-                <div><b>Мульти-клик</b><br><small style="color:var(--gray)">+1 за операцию</small></div>
-                <button class="buy-btn" onclick="upgrade()">1,000 ₽</button>
+                <div><b>Мульти-клик</b><br><small>+1 VR за тап</small></div>
+                <button class="buy-btn" onclick="buy('click', 1000, 1)">1,000 VR</button>
             </div>
-        </div>
-    </div>
-
-    <!-- ИНВЕСТ -->
-    <div id="invest" class="sheet">
-        <div class="sheet-box">
-            <div onclick="toggle('invest', false)" style="color:var(--sber); margin-bottom:20px; font-weight:600;">← Назад</div>
-            <h2 style="margin: 0 0 25px 0">Инвестиции</h2>
             <div class="list-item">
-                <div><b>Реферальная программа</b><br><small style="color:var(--gray)">Пригласить партнера</small></div>
-                <button class="buy-btn" onclick="alert('Ссылка скопирована')">SHARE</button>
+                <div><b>Авто-майнер</b><br><small>+5 VR в секунду</small></div>
+                <button class="buy-btn" onclick="buy('auto', 5000, 5)">5,000 VR</button>
             </div>
         </div>
     </div>
 
     <nav class="nav">
-        <div class="nav-item active" onclick="toggleAll()">
-            <span class="icon">🏦</span>Главный
-        </div>
-        <div class="nav-item" onclick="toggle('shop', true)">
-            <span class="icon">🛍️</span>Маркет
-        </div>
-        <div class="nav-item" onclick="toggle('invest', true)">
-            <span class="icon">📊</span>Инвест
-        </div>
+        <div class="nav-item active" onclick="toggle('shop', false)">🏦 Главный</div>
+        <div class="nav-item" onclick="toggle('shop', true)">🛍️ Маркет</div>
     </nav>
 
     <script>
-        let bal = parseInt(localStorage.getItem('v_bal')) || 0;
-        let pwr = parseInt(localStorage.getItem('v_pwr')) || 1;
+        let bal = parseInt(localStorage.getItem('vr_bal')) || 0;
+        let pwr = parseInt(localStorage.getItem('vr_pwr')) || 1;
+        let auto = parseInt(localStorage.getItem('vr_auto')) || 0;
         let nrg = 1000;
+        let lastTap = 0;
+        let adminClicks = 0;
 
         function sync() {
-            document.getElementById('score').innerText = bal.toLocaleString('ru-RU');
+            document.getElementById('score').innerText = bal.toLocaleString();
             document.getElementById('e-text').innerText = nrg + '/1000';
             document.getElementById('fill').style.width = (nrg / 10) + '%';
+            localStorage.setItem('vr_bal', bal);
+            localStorage.setItem('vr_pwr', pwr);
+            localStorage.setItem('vr_auto', auto);
         }
 
         const tapper = document.getElementById('tapper');
         tapper.addEventListener('touchstart', (e) => {
             e.preventDefault();
+            let now = Date.now();
+            if (now - lastTap < 50) return; // Защита от кликера
             if (nrg >= pwr) {
                 bal += pwr; nrg -= pwr;
-                sync();
-                localStorage.setItem('v_bal', bal);
-                
+                lastTap = now;
+                if(navigator.vibrate) navigator.vibrate(15);
                 tapper.style.transform = "scale(0.92)";
-                setTimeout(() => tapper.style.transform = "scale(1)", 80);
-                if(navigator.vibrate) navigator.vibrate(10);
+                setTimeout(() => tapper.style.transform = "scale(1)", 50);
+                sync();
             }
         });
 
-        function toggle(id, show) {
-            document.getElementById(id).classList.toggle('open', show);
+        function buy(type, price, bonus) {
+            if (bal >= price) {
+                bal -= price;
+                if (type === 'click') pwr += bonus;
+                if (type === 'auto') auto += bonus;
+                sync();
+                alert("Пакет VAULT активирован!");
+            } else { alert("Недостаточно VR"); }
         }
 
-        function toggleAll() {
-            toggle('shop', false); toggle('invest', false);
+        function handleAdmin() {
+            adminClicks++;
+            if (adminClicks >= 5) {
+                let p = prompt("Введите код доступа:");
+                if (p === "777") {
+                    bal = parseInt(prompt("Установить VR баланс:", bal)) || bal;
+                    sync();
+                }
+                adminClicks = 0;
+            }
         }
 
-        function upgrade() {
-            if (bal >= 1000) {
-                bal -= 1000; pwr += 1;
-                localStorage.setItem('v_bal', bal); localStorage.setItem('v_pwr', pwr);
-                sync(); alert('Пакет подключен!');
-            } else { alert('Недостаточно средств'); }
-        }
+        function toggle(id, show) { document.getElementById(id).classList.toggle('open', show); }
 
-        setInterval(() => { if(nrg < 1000) { nrg += 2; sync(); } }, 1000);
+        setInterval(() => {
+            bal += auto;
+            if(nrg < 1000) nrg += 2;
+            sync();
+        }, 1000);
+
         sync();
     </script>
 </body>
-</html>     
+</html>
