@@ -1,58 +1,51 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SBER VAULT</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="sber-header">
-        <div class="acc-label">Ваш баланс (RAY)</div>
-        <div class="balance-row">
-            <span id="score">0</span> <span class="rub">₽</span>
-        </div>
-    </div>
-
-    <div id="main-screen">
-        <!-- Встроенный зеленый кристалл, который НИКОГДА не пропадет -->
-        <div class="diamond-area" id="tapper">
-            <svg viewBox="0 0 100 100" class="emerald">
-                <path d="M50 5 L85 30 L85 70 L50 95 L15 70 L15 30 Z" fill="#21a038" stroke="#2ecc71" stroke-width="2""")/>>
-                <path d="M50 5 L50 95 M15 30 L85 30 M15 70 L85 70 M50 5 L15 30 M50 5 L85 30 M50 95 L15 70 M50 95 L85 70" stroke="rgba(255,255,255,0.2)" stroke-width="0.5""")/>>
-            </svg>
-        </div>
-
-        <div class="limit-box">
-            <div class="limit-info">
-                <span>Лимит на сегодня</span>
-                <span id="e-text">1000/1000</span>
-            </div>
-            <div class="track"><div id="fill"></div></div>
-        </div>
-    </div>
-
-    <!-- Тот самый Маркет снизу -->
-    <div id="market">
-        <div class="market-content">
-            <div class="close-bar" onclick="toggleShop(false)"></div>
-            <h2 class="title">Витрина</h2>
-            <div class="card">
-                <div class="card-text">
-                    <b>Мульти-счет</b>
-                    <p>Доходность +1 за клик</p>
-                </div>
-                <button onclick="upgrade()">1,000 ₽</button>
-            </div>
-        </div>
-    </div>
-
-    <nav class="footer">
-        <div class="nav-item active" onclick="toggleShop(false)">🏦 Главный</div>
+<nav class="nav">
+        <div class="nav-item active" onclick="toggleShop(false)">🏦 Счета</div>
         <div class="nav-item" onclick="toggleShop(true)">🛍️ Маркет</div>
-        <div class="nav-item">📊 История</div>
+        <div class="nav-item">📈 Биржа</div>
     </nav>
 
-    <script src="script.js"></script>
+    <script>
+        let balance = parseInt(localStorage.getItem('v_b')) || 0;
+        let energy = 1000;
+        let power = parseInt(localStorage.getItem('v_p')) || 1;
+
+        function refresh() {
+            document.getElementById('score').innerText = balance.toLocaleString('ru-RU');
+            document.getElementById('e-val').innerText = energy + "/1000";
+            document.getElementById('fill').style.width = (energy / 10) + '%';
+        }
+
+        // Самый надежный метод клика для смартфонов
+        const btn = document.getElementById('tapper');
+        btn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (energy >= power) {
+                balance += power;
+                energy -= power;
+                refresh();
+                localStorage.setItem('v_b', balance);
+                if(navigator.vibrate) navigator.vibrate(15);
+            }
+        });
+
+        function toggleShop(show) {
+            document.getElementById('shop').classList.toggle('open', show);
+        }
+
+        function closeShop(e) { toggleShop(false); }
+
+        function doUpgrade() {
+            if (balance >= 1000) {
+                balance -= 1000; power += 1;
+                localStorage.setItem('v_b', balance);
+                localStorage.setItem('v_p', power);
+                refresh();
+                alert('Услуга подключена!');
+            }
+        }
+
+        setInterval(() => { if(energy < 1000) { energy += 2; refresh(); } }, 1000);
+        refresh();
+    </script>
 </body>
 </html>
