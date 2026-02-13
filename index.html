@@ -1,63 +1,183 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VAULT RAY RESET</title>
+    <title>VAULT RAY PREMIUM</title>
     <style>
-        /* Максимально примитивный стиль, чтобы ничего не лагало */
+        :root {
+            --neon-blue: #00d9ff;
+            --dark-bg: #0d1117;
+            --anthracite: #1a1f26;
+        }
+
         body, html { 
             margin: 0; padding: 0; width: 100%; height: 100%; 
-            background: #090a0a; color: #00ff88; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            font-family: sans-serif; overflow: hidden;
+            background: var(--dark-bg); color: white; 
+            display: flex; flex-direction: column; align-items: center; 
+            font-family: 'Segoe UI', Roboto, sans-serif; overflow: hidden;
+            user-select: none; -webkit-user-select: none;
         }
-        /* Огромная зона клика, которая перекрывает ВООБЩЕ ВСЁ */
-        #clicker {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: transparent; z-index: 9999;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
+
+        /* Хедер с балансом */
+        .header {
+            margin-top: 50px;
+            text-align: center;
+            z-index: 10;
         }
-        .score { font-size: 80px; font-weight: 900; pointer-events: none; }
+
+        .score { 
+            font-size: 60px; 
+            font-weight: 900; 
+            color: var(--neon-blue);
+            text-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
+        }
+
+        /* Контейнер кристалла */
+        #game-area {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            position: relative;
+            touch-action: none;
+        }
+
         .crystal { 
-            width: 150px; height: 200px; background: #00ff88; 
-            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-            filter: drop-shadow(0 0 30px #00ff88); pointer-events: none;
+            width: 180px; height: 260px; 
+            background: var(--neon-blue); 
+            clip-path: polygon(50% 0%, 100% 20%, 100% 80%, 50% 100%, 0% 80%, 0% 20%);
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
+            filter: drop-shadow(0 0 40px var(--neon-blue));
+            transition: transform 0.05s;
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+
+        /* Вылетающие цифры */
+        .particle {
+            position: absolute;
+            color: var(--neon-blue);
+            font-weight: bold;
+            font-size: 24px;
+            pointer-events: none;
+            animation: floatUp 0.6s ease-out forwards;
+            z-index: 100;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-100px); opacity: 0; }
+        }
+
+        /* Полоска энергии */
+        .energy-container {
+            width: 80%;
+            height: 12px;
+            background: #222;
+            border-radius: 10px;
+            margin-bottom: 40px;
+            overflow: hidden;
+            border: 1px solid #333;
+        }
+
+        #energy-bar {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--neon-blue), #0055ff);
+            transition: width 0.2s;
+        }
+
+        .energy-text {
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
     </style>
 </head>
-<body onpointerdown="forceTap(event)">
+<body onpointerdown="handleTap(event)">
 
-    <div id="clicker">
+    <div class="header">
         <div id="score" class="score">0</div>
-        <div class="crystal"></div>
-        <div style="margin-top: 20px; color: #444; font-weight: bold;">TAP ANYWHERE</div>
+        <div style="color: #444; letter-spacing: 4px;">VAULT RAY</div>
+    </div>
+
+    <div id="game-area">
+        <div id="crystal" class="crystal"></div>
+    </div>
+
+    <div class="energy-text">Energy: <span id="energy-val">1000</span>/1000</div>
+    <div class="energy-container">
+        <div id="energy-bar"></div>
     </div>
 
     <script>
-        // Самая дубовая логика сохранения
-        let val = parseInt(localStorage.getItem('v_final')) || 0;
-        const s = document.getElementById('score');
-        s.innerText = val;
+        let score = parseInt(localStorage.getItem('ray_score')) || 0;
+        let energy = parseInt(localStorage.getItem('ray_energy')) || 1000;
+        const maxEnergy = 1000;
 
-        // Функция, которая сработает ДАЖЕ если всё остальное заблокировано
-        function forceTap(e) {
-            val++;
-            s.innerText = val;
-            localStorage.setItem('v_final', val);
+        const scoreEl = document.getElementById('score');
+        const energyEl = document.getElementById('energy-val');
+        const energyBar = document.getElementById('energy-bar');
+        const crystal = document.getElementById('crystal');
+
+        // Инициализация
+        scoreEl.innerText = score;
+        updateEnergyUI();
+        function handleTap(e) {
+            if (energy <= 0) return;
+
+            // Логика клика
+            score++;
+            energy--;
             
-            // Пробуем вибро, если система позволит
-            if (window.navigator && window.navigator.vibrate) {
-                window.navigator.vibrate(10);
-            }
+            // Сохранение
+            scoreEl.innerText = score;
+            localStorage.setItem('ray_score', score);
+            localStorage.setItem('ray_energy', energy);
 
-            // Минимальный визуал
-            document.body.style.backgroundColor = '#111';
-            setTimeout(() => { document.body.style.backgroundColor = '#090a0a'; }, 50);
+            updateEnergyUI();
+            spawnParticle(e.clientX, e.clientY);
+
+            // Визуал кристалла при тапе
+            crystal.style.transform = 'scale(0.95)';
+            setTimeout(() => { crystal.style.transform = 'scale(1)'; }, 50);
+
+            if (navigator.vibrate) navigator.vibrate(5);
         }
 
-        // Если это iPhone, иногда нужно «пнуть» аудио-контекст или тач
-        document.addEventListener('touchstart', function() {}, false);
+        function spawnParticle(x, y) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.innerText = '+1';
+            p.style.left = x + 'px';
+            p.style.top = y + 'px';
+            document.body.appendChild(p);
+            setTimeout(() => p.remove(), 600);
+        }
+
+        function updateEnergyUI() {
+            energyEl.innerText = energy;
+            const percent = (energy / maxEnergy) * 100;
+            energyBar.style.width = percent + '%';
+        }
+
+        // Регенерация энергии (1 единица в секунду)
+        setInterval(() => {
+            if (energy < maxEnergy) {
+                energy++;
+                updateEnergyUI();
+                localStorage.setItem('ray_energy', energy);
+            }
+        }, 1000);
     </script>
 </body>
 </html>
