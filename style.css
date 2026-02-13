@@ -1,22 +1,77 @@
-:root { --gold: #c5a059; --bg: #0a0b0c; }
-* { touch-action: manipulation; box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: white; font-family: sans-serif; overflow: hidden; }
+:root {
+    --sber-main: #21a038;
+    --sber-dark: #000000;
+    --sber-card: #1c1c1e;
+    --sber-text-gray: #8e8e93;
+}
 
-.app-header { padding: 50px 20px; text-align: center; border-bottom: 1px solid #222; }
-.balance-val { font-size: 48px; color: white; }
+* { 
+    touch-action: manipulation; 
+    box-sizing: border-box; 
+    -webkit-user-select: none;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
 
-#main-screen { height: 60vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.diamond-container { width: 250px; cursor: pointer; transition: transform 0.1s; }
-.diamond-container img { width: 100%; filter: drop-shadow(0 0 20px rgba(0,122,255,0.2)); }
+body { 
+    margin: 0; background: var(--sber-dark); color: white; 
+    height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+}
 
-.energy-section { width: 80%; margin-top: 20px; }
-.energy-track { height: 4px; background: #222; border-radius: 10px; }
-#energy-fill { height: 100%; background: var(--gold); width: 100%; transition: 0.2s; }
+/* Верхняя панель счета */
+.bank-header {
+    padding: 60px 20px 30px;
+    background: linear-gradient(180deg, #1c1c1e 0%, #000000 100%);
+    border-bottom: 0.5px solid #333;
+}
+.label { font-size: 13px; color: var(--sber-text-gray); margin-bottom: 5px; }
+.balance-wrap { display: flex; align-items: baseline; gap: 8px; }
+.balance-val { font-size: 42px; font-weight: 700; }
+.symbol { color: var(--sber-main); font-size: 26px; }
 
-.tab-bar { position: fixed; bottom: 0; width: 100%; height: 80px; background: #1c1e21; display: flex; border-top: 1px solid #333; }
-.tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #555; font-size: 12px; }
-.tab-item.active { color: var(--gold); }
+/* Центральная зона с ЗЕЛЕНЫМ АЛМАЗОМ */
+#game-zone {
+    flex-grow: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+}
+.diamond-wrapper {
+    width: 280px; height: 280px;
+    display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(circle, rgba(33, 160, 56, 0.1) 0%, rgba(0,0,0,0) 70%);
+}
+/* Зеленый фильтр для алмаза */
+.diamond-wrapper img {
+    width: 100%; 
+    filter: drop-shadow(0 0 30px rgba(33, 160, 56, 0.4)) hue-rotate(60deg) brightness(1.2);
+    transition: transform 0.1s;
+}
 
-#shop-screen { position: fixed; top: 100%; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 100; transition: 0.4s; padding: 20px; }
-#shop-screen.open { top: 0; }
-.close-btn { color: var(--gold); margin-bottom: 20px; cursor: pointer; }
+/* Энергия как лимит по карте */
+.energy-card {
+    width: 90%; background: var(--sber-card);
+    padding: 20px; border-radius: 20px; margin-bottom: 120px;
+}
+.energy-meta { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 10px; }
+.track { height: 4px; background: #333; border-radius: 2px; }
+#fill { height: 100%; background: var(--sber-main); width: 100%; transition: 0.3s; }
+
+/* Нижнее меню */
+.sber-nav {
+    position: fixed; bottom: 0; width: 100%; height: 90px;
+    background: rgba(28, 28, 30, 0.95); backdrop-filter: blur(15px);
+    display: flex; border-top: 0.5px solid #333; padding-bottom: 20px;
+}
+.nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--sber-text-gray); font-size: 11px; }
+.nav-btn.active { color: var(--sber-main); }
+.icon { font-size: 24px; margin-bottom: 4px; }
+
+/* Магазин */
+#market {
+    position: fixed; top: 100%; left: 0; width: 100%; height: 100%;
+    background: var(--sber-dark); z-index: 1000; transition: 0.4s ease; padding: 25px;
+}
+#market.open { top: 0; }
+.item-card {
+    background: var(--sber-card); padding: 20px; border-radius: 20px;
+    display: flex; justify-content: space-between; align-items: center; margin-top: 20px;
+}
+.buy-action { background: var(--sber-main); color: white; border: none; padding: 12px 20px; border-radius: 12px; font-weight: 600; }
