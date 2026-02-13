@@ -1,6 +1,6 @@
-let balance = parseInt(localStorage.getItem('b_val')) || 0;
+let balance = parseInt(localStorage.getItem('bal')) || 0;
 let energy = 1000;
-let power = parseInt(localStorage.getItem('b_pow')) || 1;
+let power = parseInt(localStorage.getItem('pow')) || 1;
 const maxE = 1000;
 
 function sync() {
@@ -14,15 +14,13 @@ document.getElementById('tapper').addEventListener('pointerdown', (e) => {
     balance += power;
     energy -= power;
     sync();
-    localStorage.setItem('b_val', balance);
-    
-    const img = e.currentTarget.querySelector('img');
-    img.style.transform = 'scale(0.92)';
-    setTimeout(() => img.style.transform = 'scale(1)', 100);
-    if(navigator.vibrate) navigator.vibrate(5);
+    localStorage.setItem('bal', balance);
+    document.getElementById('tapper').style.transform = 'scale(0.9)';
+    setTimeout(() => document.getElementById('tapper').style.transform = 'scale(1)', 100);
+    if(navigator.vibrate) navigator.vibrate(10);
 });
 
-function toggleMarket(open) {
+function toggleShop(open) {
     document.getElementById('market').classList.toggle('open', open);
 }
 
@@ -30,15 +28,12 @@ function upgrade() {
     if (balance >= 1000) {
         balance -= 1000;
         power += 1;
-        localStorage.setItem('b_val', balance);
-        localStorage.setItem('b_pow', power);
+        localStorage.setItem('bal', balance);
+        localStorage.setItem('pow', power);
         sync();
-        alert('Услуга подключена!');
+        alert('Мульти-счет активен!');
     }
 }
 
-setInterval(() => {
-    if (energy < maxE) { energy += 2; sync(); }
-}, 1000);
-
+setInterval(() => { if (energy < maxE) { energy += 2; sync(); } }, 1000);
 sync();
